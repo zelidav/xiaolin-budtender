@@ -68,7 +68,7 @@ function topbar(){
     <div class="pts"><b>${pts}</b>Roller Pts</div>
   </div>`;
 }
-function foot(){ return `<div class="foot">Rolled Proper · Evergreen, CO · Est. 2018</div>`; }
+function foot(){ return `<div class="foot">Rolled Proper · Made in New York · Warwick, NY</div>`; }
 
 /* ---------- cover / signup ---------- */
 function viewCover(app){
@@ -79,7 +79,18 @@ function viewCover(app){
     <h1>The Roller<br>Academy</h1>
     <div class="promise">Learn the craft. Earn the merch.</div>
     <div class="marque"><span>High Times</span><span class="x">×</span><span>Playboy</span><span class="x">×</span><span>Forbes</span></div>
-    <p class="sub">Colorado's only creative rolling studio. Pass the training, log a real sale, and unlock a budtender discount, studio merch, and a seat on the <strong>High Council</strong>.</p>
+    <p class="sub">The original creative rolling studio — now <strong>Made in New York</strong>. Get certified, sell, and rack up points to earn real <strong>Xiaolin × your shop</strong> gear and a seat on the <strong>High Council</strong>.</p>
+
+    <div class="earn-strip">
+      <div class="es-head">What you're playing for</div>
+      <div class="es-row">
+        <div class="es-item"><div class="es-pic"><span>🏷️</span></div><div class="es-c">50% Code</div><div class="es-p">100 pts</div></div>
+        <div class="es-item"><div class="es-pic"><img src="img/merch/tote-red.png" alt="tote"></div><div class="es-c">Tote</div><div class="es-p">400 pts</div></div>
+        <div class="es-item"><div class="es-pic"><img src="img/merch/hat-red.png" alt="hat"></div><div class="es-c">Trucker Hat</div><div class="es-p">700 pts</div></div>
+        <div class="es-item"><div class="es-pic"><img src="img/medallion.jpg" alt="council"></div><div class="es-c">High Council</div><div class="es-p">1000 pts</div></div>
+      </div>
+      <div class="es-rule">Earn <b>1 pt / $1</b> sold · <b>+100</b> for finishing training</div>
+    </div>
   </div>
   <div class="card">
     <h2>Get Rolling</h2>
@@ -506,4 +517,14 @@ function viewReward(app){
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function resetProgress(){ if(confirm("Reset all progress on this device?")){ localStorage.removeItem(LS); S=null; go("#/"); render(); } }
 
+// Test-account deep link: ?n=Chris+Louie&s=Xiaolin+Dispensary creates the account.
+function initFromLink(){
+  const q = new URLSearchParams(location.search);
+  const n = (q.get("n")||"").trim(), st = (q.get("s")||"").trim();
+  if (n && st && (!S || !S.joined)){
+    S = freshState(n, st); saveState(S);
+    if (!location.hash || location.hash === "#/") location.hash = "#/dashboard";
+  }
+}
+initFromLink();
 render();

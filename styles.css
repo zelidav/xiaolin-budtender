@@ -178,6 +178,21 @@ input::placeholder{color:#6f6354}
 .perk .pt{font-family:var(--serif);font-size:1.05rem;color:var(--ink);font-weight:600;margin-top:4px;line-height:1.05}
 .perk .pp{font-size:.74rem;color:var(--mute);margin-top:3px;line-height:1.35}
 
+/* cover earn-strip (merch hype) */
+.earn-strip{margin:20px auto 0;max-width:440px;padding:16px 14px 14px;border-radius:12px;
+  background:radial-gradient(120% 120% at 50% -10%, #23110d, #100a08 75%);border:1px solid var(--card-line);box-shadow:0 12px 34px rgba(0,0,0,.4)}
+.earn-strip .es-head{font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:12px}
+.earn-strip .es-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.es-item{display:flex;flex-direction:column;align-items:center}
+.es-pic{width:100%;aspect-ratio:1;border-radius:8px;background:radial-gradient(120% 120% at 50% 20%,#20140f,#0c0807);
+  border:1px solid var(--card-line);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.es-pic img{width:100%;height:100%;object-fit:contain;padding:5px}
+.es-pic span{font-size:1.5rem}
+.es-c{font-family:var(--serif);font-size:.84rem;color:var(--ink);font-weight:600;margin-top:6px;line-height:1.05;text-align:center}
+.es-p{font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);font-weight:800;margin-top:1px}
+.earn-strip .es-rule{font-size:.7rem;color:var(--mute);font-weight:500;margin-top:12px;text-align:center}
+.earn-strip .es-rule b{color:var(--gold)}
+
 /* points hero */
 .pts-hero{position:relative;overflow:hidden;margin:16px 0 6px;padding:24px 20px 18px;border-radius:12px;text-align:center;
   background:radial-gradient(120% 100% at 50% -10%, #2a0f0c, #100a08 72%);border:1px solid var(--card-line);
