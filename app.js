@@ -152,6 +152,10 @@ function viewTrainingHub(app){
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <h1>Training</h1>
   <p class="sub">${total} sections · ~2 min each · pass each quiz at 80% to unlock the next. ${done}/${total} done.</p>
+  <a href="${XIAOLIN.highCouncil.movieUrl}" target="_blank" rel="noopener" class="movie-cta">
+    ▶ Watch the official Retail Sales Training Movie
+    <span>Straight from the studio · ~optional but recommended</span>
+  </a>
   <div class="sect-grid">${cards}</div>
   ${allPassed() ? (canRedeem()
       ? `<a class="btn gold" href="#/reward">You're Certified — Claim Reward →</a>`
@@ -262,19 +266,26 @@ function gradeQuiz(n){
 
 /* ---------- lineup ---------- */
 function viewLineup(app){
-  const rows = XIAOLIN.products.map(p=>`
-    <div class="prod-row">
+  const rows = XIAOLIN.products.map(p=>{
+    const specs = [p.flower, p.conc, p.burn].filter(Boolean).join(" · ");
+    return `<div class="prod-row">
       <img src="${p.img}" alt="${p.name}">
       <div>
         <div class="pn">${p.name}</div>
-        <div class="pl">${p.line}${p.burn&&p.burn!=='—'?' · '+p.burn:''}</div>
+        <div class="pl">${p.line}</div>
+        ${specs?`<div class="pspecs">${esc(specs)}</div>`:""}
         <div class="pb">${p.blurb}</div>
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <h1>The Lineup</h1>
-  <p class="sub">Know every piece on the shelf. Cannagars up top, infused joints below, the tool that earns it all.</p>
+  <p class="sub">Official Premium Roll Product Lineup. Every roll is infused — flower <em>plus</em> concentrate.</p>
+  <a href="img/spec-sheet.png" target="_blank" rel="noopener" class="spec-link">
+    <img class="spec-sheet" src="img/spec-sheet.png" alt="Made in Xiaolin Premium Roll Product Lineup spec sheet">
+    <span>Official spec sheet · tap to enlarge</span>
+  </a>
   <div class="card">${rows}</div>
   ${foot()}`;
   window.scrollTo(0,0);
