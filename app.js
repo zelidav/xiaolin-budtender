@@ -299,58 +299,119 @@ function viewLineup(app){
   window.scrollTo(0,0);
 }
 
-/* ---------- receipt scanner (MVP) ---------- */
+/* ---------- receipt scanner (real OCR via Tesseract.js) ---------- */
 function viewSale(app){
   const opts = XIAOLIN.products.map(p=>`<option value="${p.sku}">${esc(p.name)} — ${esc(p.line)}</option>`).join("");
-  const prior = S.sales.map((sl,i)=>`<div class="sale-row"><span>🧾 ${esc(sl.product)}</span><span>$${esc(sl.amount)}</span></div>`).join("");
+  const prior = S.sales.map((sl)=>`<div class="sale-row"><span>${sl.verified?'✅':'🧾'} ${esc(sl.product)}</span><span>$${esc(sl.amount)}</span></div>`).join("");
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <div class="kicker">Receipt Scanner</div>
   <h1>Log a Sale</h1>
-  <p class="sub">Snap the receipt from a Xiaolin sale. ${allPassed()?'':'(You can do this any time — but rewards unlock only after training is done too.)'} This is an MVP — the scan logs locally; full OCR + verification comes with the backend.</p>
+  <p class="sub">Snap a receipt with a Made in Xiaolin sale. We read it on-device and verify the brand — nothing leaves your phone.${allPassed()?'':' (You can log any time, but rewards unlock only after training is done too.)'}</p>
 
   <div class="card">
     <label>Receipt photo</label>
     <label for="rfile" class="scan-drop" id="scanDrop">
-      <div id="scanInner"><div class="scan-ico">📷</div><div class="scan-t">Tap to add receipt photo</div><div class="scan-s">Snap or upload · stays on your device</div></div>
+      <div id="scanInner"><div class="scan-ico">📷</div><div class="scan-t">Tap to add receipt photo</div><div class="scan-s">Snap or upload · read on-device</div></div>
       <img id="scanPrev" class="scan-prev hidden" alt="receipt preview">
     </label>
     <input id="rfile" type="file" accept="image/*" capture="environment" class="hidden" onchange="onReceipt(event)">
 
+    <div id="ocrResult"></div>
+
     <div class="field"><label>What did you sell?</label>
       <select id="rprod" class="sel">${opts}</select></div>
     <div class="field"><label>Sale amount (USD)</label>
-      <input id="ramt" type="number" inputmode="decimal" min="1" placeholder="e.g. 60"></div>
+      <input id="ramt" type="number" inputmode="decimal" min="1" placeholder="e.g. 120"></div>
 
     <div class="err" id="saleErr">Add a receipt photo and an amount to log the sale.</div>
     <button class="btn" id="logBtn" onclick="logSale()">Log This Sale</button>
   </div>
 
-  ${prior?`<h3 style="margin:22px 0 6px;font-family:var(--serif);font-size:1.3rem;color:var(--red);font-weight:600">Your logged sales</h3><div class="card" style="padding:6px 18px">${prior}</div>`:""}
+  ${prior?`<h3 style="margin:22px 0 6px;font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600">Your logged sales</h3><div class="card" style="padding:6px 18px">${prior}</div>`:""}
   ${foot()}`;
-  window._receipt = null;
+  window._receipt = null; window._verified = null; window._ocrText = "";
   window.scrollTo(0,0);
 }
+
 function onReceipt(ev){
   const f = ev.target.files && ev.target.files[0];
   if (!f) return;
   const drop = document.getElementById("scanDrop");
-  drop.classList.add("scanning");
   const inner = document.getElementById("scanInner");
-  inner.innerHTML = `<div class="scan-ico">⏳</div><div class="scan-t">Scanning receipt…</div>`;
   const reader = new FileReader();
   reader.onload = e => {
+    const dataUrl = e.target.result;
+    const prev = document.getElementById("scanPrev");
+    prev.src = dataUrl; prev.classList.remove("hidden");
+    inner.classList.add("hidden");
+    drop.classList.remove("scanning"); drop.classList.add("captured");
     window._receipt = true;
-    // tiny "scan" beat for feel; honest MVP — no real OCR
-    setTimeout(()=>{
-      const prev = document.getElementById("scanPrev");
-      prev.src = e.target.result; prev.classList.remove("hidden");
-      inner.classList.add("hidden");
-      drop.classList.remove("scanning"); drop.classList.add("captured");
-    }, 700);
+    runOCR(dataUrl);
   };
   reader.readAsDataURL(f);
 }
+
+function ocrStatus(html){ const el=document.getElementById("ocrResult"); if(el) el.innerHTML=html; }
+
+async function runOCR(dataUrl){
+  ocrStatus(`<div class="ocr scanning"><span class="spin">◠</span> Reading receipt on-device…</div>`);
+  if (typeof Tesseract === "undefined"){
+    // OCR library didn't load — let the budtender confirm manually.
+    window._verified = null;
+    ocrStatus(`<div class="ocr warn">Couldn't load the scanner here. Confirm the product + amount below and log manually.</div>`);
+    return;
+  }
+  try{
+    const { data } = await Tesseract.recognize(dataUrl, "eng", {
+      logger: m => { if (m.status === "recognizing text") ocrStatus(`<div class="ocr scanning"><span class="spin">◠</span> Reading receipt… ${Math.round((m.progress||0)*100)}%</div>`); }
+    });
+    applyOCR(data.text || "");
+  }catch(err){
+    window._verified = null;
+    ocrStatus(`<div class="ocr warn">Scan didn't complete. Enter the product + amount below and log manually.</div>`);
+  }
+}
+
+// Parse OCR text → verify brand, detect products, pull the total. Prefill the form.
+function applyOCR(text){
+  window._ocrText = text;
+  const low = text.toLowerCase();
+  const brand = /xiaolin/.test(low);
+  const PKEYS = [
+    {sku:"GODFATHER", re:/godfather/}, {sku:"CAPO", re:/\bcapo\b/}, {sku:"GOOMAH", re:/goomah/},
+    {sku:"SOLDATO", re:/soldato/}, {sku:"BAMBINO", re:/bambino/},
+  ];
+  const found = PKEYS.filter(p => p.re.test(low));
+  // amount: prefer a line containing "total", else the largest $ figure on the receipt
+  const money = m => parseFloat(m.replace(/[^0-9.]/g,""));
+  let amount = null;
+  const totalLine = text.split(/\n/).find(l => /total/i.test(l) && /\d/.test(l) && !/subtotal/i.test(l));
+  const grab = s => { const m = (s||"").match(/\$?\s?\d{1,4}\.\d{2}/g); return m ? m.map(money) : []; };
+  const tvals = grab(totalLine);
+  if (tvals.length) amount = Math.max(...tvals);
+  if (amount == null){ const all = grab(text); if (all.length) amount = Math.max(...all); }
+
+  // prefill product dropdown + amount
+  if (found.length){ const sel = document.getElementById("rprod"); if (sel) sel.value = found[0].sku; }
+  if (amount != null){ const a = document.getElementById("ramt"); if (a && !a.value) a.value = amount.toFixed(2); }
+
+  window._verified = brand;
+  const names = found.map(f => (XIAOLIN.products.find(p=>p.sku===f.sku)||{}).name).filter(Boolean);
+  if (brand){
+    ocrStatus(`<div class="ocr ok">
+      <div class="ocr-h">✓ Verified Made in Xiaolin receipt</div>
+      ${names.length?`<div class="ocr-d">Detected: ${esc(names.join(", "))}</div>`:""}
+      ${amount!=null?`<div class="ocr-d">Total read: <b>$${amount.toFixed(2)}</b> — confirm below.</div>`:`<div class="ocr-d">Couldn't read a total — enter the amount below.</div>`}
+    </div>`);
+  } else {
+    ocrStatus(`<div class="ocr warn">
+      <div class="ocr-h">⚠ Couldn't find "Xiaolin" on this receipt</div>
+      <div class="ocr-d">Make sure the brand line is in frame, or pick the product + amount and log manually.</div>
+    </div>`);
+  }
+}
+
 function logSale(){
   const amt = parseFloat(document.getElementById("ramt").value);
   const sku = document.getElementById("rprod").value;
@@ -358,9 +419,12 @@ function logSale(){
   if (!window._receipt || !amt || amt <= 0){
     document.getElementById("saleErr").classList.add("show"); return;
   }
+  // Validation gate: if OCR couldn't verify the brand, make the budtender confirm.
+  if (window._verified === false &&
+      !confirm("This receipt didn't scan as a Made in Xiaolin sale. Log it anyway?")) return;
   const first = saleCount() === 0;
-  S.sales.push({ product: prod, sku, amount: amt.toFixed(2) });
-  S.points += 25 + (first ? 50 : 0);   // sale points; bonus for first sale
+  S.sales.push({ product: prod, sku, amount: amt.toFixed(2), verified: window._verified === true });
+  S.points += 25 + (first ? 50 : 0) + (window._verified === true ? 10 : 0);
   saveState(S);
   if (canRedeem() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
   if (canRedeem()) go("#/reward");

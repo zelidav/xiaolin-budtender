@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Made in Xiaolin · Roller Academy</title>
 <meta name="description" content="Budtender training for Made in Xiaolin — Colorado's only creative rolling studio. Learn the lineup, pass the quizzes, earn the merch. Rolled Proper.">
-<meta name="theme-color" content="#7c0d15">
+<meta name="theme-color" content="#0a0807">
 <link rel="icon" href="img/xiaolin-logo.png">
 <link rel="apple-touch-icon" href="img/xiaolin-logo.png">
 <!-- Open Graph for shareability -->
@@ -21,6 +21,8 @@
 <body>
 <div class="paper-noise"></div>
 <div class="wrap"><div id="app"></div></div>
+<!-- On-device OCR for the receipt scanner (loads its worker/WASM lazily on first scan) -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
