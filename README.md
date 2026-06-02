@@ -11,6 +11,9 @@ Static, client-only (localStorage) — a quick shareable MVP before the backend 
 - `data.js` — products, 6 training sections, per-section quizzes (built from madeinxiaolin.com)
 - `app.js` — hash-router SPA, localStorage progress, quiz grading, reward code
 
+## Demo receipt
+`demo-receipt.png` is a realistic dispensary receipt (Higher Ground / Made in Xiaolin line items) for demoing the `#/sale` receipt scanner. Upload it when prompted. Source: `tools/receipt.html` (rendered via headless Chrome).
+
 ## Run locally
     python -m http.server 8080   # then open http://localhost:8080
 

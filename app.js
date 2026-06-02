@@ -293,7 +293,7 @@ function viewSale(app){
   <div class="card">
     <label>Receipt photo</label>
     <label for="rfile" class="scan-drop" id="scanDrop">
-      <div id="scanInner"><div class="scan-ico">📷</div><div class="scan-t">Tap to snap or upload receipt</div><div class="scan-s">JPG / PNG · stays on your device</div></div>
+      <div id="scanInner"><div class="scan-ico">📷</div><div class="scan-t">Tap to add receipt photo</div><div class="scan-s">Snap or upload · stays on your device</div></div>
       <img id="scanPrev" class="scan-prev hidden" alt="receipt preview">
     </label>
     <input id="rfile" type="file" accept="image/*" capture="environment" class="hidden" onchange="onReceipt(event)">

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{width:560px;height:880px;display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(120% 80% at 30% 10%, #3a3330, #211d1b 70%),
+      #1c1917;
+    font-family:'JetBrains Mono',monospace;}
+  /* subtle counter grain */
+  body:after{content:"";position:absolute;inset:0;opacity:.05;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .receipt{
+    width:340px;background:#fbfbf8;color:#1a1a1a;padding:26px 26px 30px;
+    transform:rotate(-1.4deg);
+    box-shadow:0 30px 60px rgba(0,0,0,.55), 0 6px 16px rgba(0,0,0,.4);
+    position:relative;
+    /* torn-ish top/bottom via zigzag mask */
+    -webkit-mask:
+      linear-gradient(#000 0 0) padding-box,
+      linear-gradient(#000 0 0);
+  }
+  /* faded thermal print */
+  .receipt *{font-family:'JetBrains Mono',monospace;color:#262320}
+  .center{text-align:center}
+  .brand{font-weight:700;font-size:19px;letter-spacing:1px}
+  .small{font-size:10px;line-height:1.5;color:#555}
+  .xs{font-size:9px;color:#777;letter-spacing:.5px}
+  hr{border:0;border-top:1px dashed #999;margin:11px 0}
+  .row{display:flex;justify-content:space-between;font-size:12px;line-height:1.7}
+  .item{font-size:12px;font-weight:500;margin-top:7px}
+  .item .ln{display:flex;justify-content:space-between}
+  .item .meta{font-size:9.5px;color:#777;padding-left:2px}
+  .tot{font-weight:700;font-size:14px}
+  .big{font-size:15px}
+  .barcode{height:46px;margin:14px auto 4px;width:90%;
+    background:repeating-linear-gradient(90deg,#1a1a1a 0 2px,#fff 2px 4px,#1a1a1a 4px 5px,#fff 5px 9px,#1a1a1a 9px 11px,#fff 11px 13px);}
+  .thanks{font-weight:700;font-size:12px;letter-spacing:1px;margin-top:6px}
+  .seal{font-size:10px;letter-spacing:3px;color:#8c0d16;font-weight:700;margin-top:3px}
+</style></head>
+<body>
+  <div class="receipt">
+    <div class="center">
+      <div class="brand">HIGHER GROUND</div>
+      <div class="brand" style="font-size:13px;letter-spacing:2px">DISPENSARY</div>
+      <div class="small">418 Mountain View Rd<br>Evergreen, CO 80439<br>(720) 555-0142</div>
+      <div class="xs" style="margin-top:5px">OCM LIC #C11-0000721-LIC</div>
+    </div>
+    <hr>
+    <div class="row"><span>Order</span><span>#A-20418</span></div>
+    <div class="row"><span>Date</span><span>06/02/2026  4:37 PM</span></div>
+    <div class="row"><span>Budtender</span><span>Maria C.</span></div>
+    <div class="row"><span>Reg</span><span>02</span></div>
+    <hr>
+
+    <div class="item"><div class="ln"><span>MADE IN XIAOLIN</span><span></span></div>
+      <div class="ln"><span>The Godfather VSXL</span><span>$120.00</span></div>
+      <div class="meta">Cannagar · 1ct · SKU XLN-GDF-01</div></div>
+
+    <div class="item"><div class="ln"><span>MADE IN XIAOLIN</span><span></span></div>
+      <div class="ln"><span>The Soldato (Rice)</span><span>$28.00</span></div>
+      <div class="meta">Infused Joint · 1.5g · SKU XLN-SOL-R</div></div>
+
+    <div class="item"><div class="ln"><span>MADE IN XIAOLIN</span><span></span></div>
+      <div class="ln"><span>The Bambino 2-Pack</span><span>$32.00</span></div>
+      <div class="meta">Infused Joint · 2ct · SKU XLN-BMB-02</div></div>
+
+    <hr>
+    <div class="row"><span>Subtotal</span><span>$180.00</span></div>
+    <div class="row"><span>Cannabis Excise 15%</span><span>$27.00</span></div>
+    <div class="row"><span>Sales Tax 8.0%</span><span>$14.40</span></div>
+    <hr>
+    <div class="row tot big"><span>TOTAL</span><span>$221.40</span></div>
+    <div class="row"><span>VISA ****4417</span><span>$221.40</span></div>
+    <hr>
+    <div class="center">
+      <div class="barcode"></div>
+      <div class="xs">A20418-XLN-060226</div>
+      <div class="thanks">THANK YOU</div>
+      <div class="seal">ROLLED PROPER</div>
+      <div class="xs" style="margin-top:6px">21+ · Keep out of reach of children<br>Returns accepted within 7 days w/ receipt</div>
+    </div>
+  </div>
+</body></html>
