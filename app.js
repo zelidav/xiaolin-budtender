@@ -284,7 +284,7 @@ function viewLineup(app){
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <h1>The Lineup</h1>
-  <p class="sub">Official Premium Roll Product Lineup — every roll is rosin-infused (flower <em>plus</em> concentrate). Prices are live NY retail (Terp Bros Astoria); the dispensary sets cannabis pricing, so it varies by store.</p>
+  <p class="sub">Official Premium Roll Product Lineup — every roll is rosin-infused (flower <em>plus</em> concentrate). Prices are live NY retail (Terp Bros Astoria + Alto Canna). The dispensary sets cannabis pricing, so it swings hard by store — the Godfather runs ~$382 at Terp Bros but up to $495–$660 elsewhere in NYC. Sell the craft, not the sticker.</p>
   <a href="img/spec-sheet.png" target="_blank" rel="noopener" class="spec-link">
     <img class="spec-sheet" src="img/spec-sheet.png" alt="Made in Xiaolin Premium Roll Product Lineup spec sheet">
     <span>Official spec sheet · tap to enlarge</span>
