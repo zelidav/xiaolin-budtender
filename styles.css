@@ -77,6 +77,10 @@ input::placeholder{color:#c4ab93}
 
 .err{color:var(--red);font-size:.78rem;margin-top:10px;font-weight:600;display:none}
 .err.show{display:block}
+.demo-hint{text-align:center;margin-top:12px;font-size:.74rem;color:var(--gold-deep);font-weight:600;cursor:pointer;
+  border:1px dashed var(--card-line);border-radius:6px;padding:9px 10px;background:rgba(169,121,26,.05);touch-action:manipulation}
+.demo-hint:active{background:rgba(169,121,26,.12)}
+.demo-hint strong{color:var(--red)}
 
 /* progress */
 .prog-outer{background:var(--line-soft);border-radius:8px;height:12px;overflow:hidden;margin:8px 0 4px}

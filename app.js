@@ -79,7 +79,8 @@ function viewCover(app){
     <div class="field"><label>Your Shop</label><input id="f_store" placeholder="Dispensary name" autocomplete="organization"></div>
     <div class="err" id="joinErr">Add your name and your shop to start.</div>
     <button class="btn" onclick="doJoin()">Enter the Studio →</button>
-    <p class="sub" style="text-align:center;margin-top:14px">Already started? Your progress is saved on this device.</p>
+    <p class="demo-hint" onclick="fillDemo()">Demo? Tap to use <strong>Dave Z · Dave's Dispensary</strong></p>
+    <p class="sub" style="text-align:center;margin-top:10px">Already started? Your progress is saved on this device.</p>
   </div>
   ${foot()}`;
 }
@@ -88,6 +89,10 @@ function doJoin(){
   const store = document.getElementById("f_store").value.trim();
   if (!name || !store){ document.getElementById("joinErr").classList.add("show"); return; }
   S = freshState(name, store); saveState(S); go("#/dashboard");
+}
+function fillDemo(){
+  document.getElementById("f_name").value = "Dave Z";
+  document.getElementById("f_store").value = "Dave's Dispensary";
 }
 
 /* ---------- dashboard ---------- */
