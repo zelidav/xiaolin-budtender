@@ -147,6 +147,43 @@ input::placeholder{color:#c4ab93}
 .perk .pt{font-family:var(--serif);font-size:1.05rem;color:var(--ink);font-weight:600;margin-top:4px;line-height:1.05}
 .perk .pp{font-size:.74rem;color:var(--mute);margin-top:3px;line-height:1.35}
 
+/* two-step unlock tracker */
+.unlock-steps{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.unlock-step{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid var(--card-line);border-radius:6px;background:#fff}
+.unlock-step.done{border-color:var(--good);background:var(--good-soft)}
+.unlock-step .us-tick{flex-shrink:0;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.9rem;background:var(--line-soft);color:var(--mute)}
+.unlock-step.done .us-tick{background:var(--good);color:#fff}
+.unlock-step .us-l{font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--ink);line-height:1.1}
+.unlock-step .us-s{font-size:.72rem;color:var(--mute);margin-top:1px}
+
+/* receipt scanner */
+.sel{width:100%;padding:13px 14px;background:#fff;border:1.5px solid var(--card-line);border-radius:4px;
+  font-family:var(--sans);font-size:16px;color:var(--ink);font-weight:500;-webkit-appearance:none;appearance:none}
+.sel:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(179,18,31,.1)}
+.scan-drop{display:flex;align-items:center;justify-content:center;min-height:160px;border:2px dashed var(--card-line);
+  border-radius:8px;background:rgba(169,121,26,.05);cursor:pointer;text-align:center;overflow:hidden;transition:border-color .15s,background .15s}
+.scan-drop:hover{border-color:var(--red)}
+.scan-drop.scanning{border-color:var(--gold);background:rgba(169,121,26,.12)}
+.scan-drop.captured{border-style:solid;border-color:var(--good);padding:0}
+.scan-ico{font-size:2.2rem}
+.scan-t{font-family:var(--serif);font-size:1.2rem;color:var(--ink);font-weight:600;margin-top:6px}
+.scan-s{font-size:.7rem;color:var(--mute);margin-top:3px;letter-spacing:.02em}
+.scan-prev{width:100%;max-height:280px;object-fit:cover;display:block}
+.sale-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line-soft);font-size:.9rem;color:var(--ink-soft)}
+.sale-row:last-child{border-bottom:0}.sale-row span:last-child{font-family:var(--sc);color:var(--gold-deep);font-weight:600}
+
+/* High Council — ultimate prize block */
+.council{background:radial-gradient(120% 90% at 50% 0%, #1a0407, #0c0204 70%);border:1px solid var(--gold-soft);
+  border-radius:12px;padding:30px 22px 26px;text-align:center;margin:18px 0;color:#f7efdd;
+  box-shadow:0 16px 48px rgba(0,0,0,.4),0 0 70px rgba(216,34,47,.12)}
+.council-seal{width:120px;height:120px;border-radius:50%;object-fit:cover;margin:0 auto 14px;display:block;
+  border:2px solid var(--gold-soft);box-shadow:0 0 36px rgba(240,207,134,.4)}
+.council-links{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.council-links a{color:var(--gold-soft);font-size:.74rem;letter-spacing:.06em;font-weight:600;text-decoration:none;
+  border:1px solid rgba(240,207,134,.4);border-radius:100px;padding:8px 14px;transition:background .15s}
+.council-links a:hover{background:rgba(240,207,134,.12)}
+
 .foot{text-align:center;font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-deep);font-weight:600;margin-top:30px;opacity:.8}
 .backlink{display:inline-block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--red);font-weight:700;text-decoration:none;margin:6px 0 2px}
 .backlink:hover{color:var(--red-deep)}

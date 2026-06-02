@@ -170,7 +170,39 @@ const XIAOLIN = {
           e: "Match product to moment: solo → Soldato / Bambino." },
       ],
     },
+    {
+      n: 7, key: "council", title: "The High Council",
+      tag: "The ultimate prize",
+      hero: "img/medallion.jpg",
+      body: [
+        "Pass everything here and one door opens that money can't: <strong>The High Council</strong> — Xiaolin's official inner circle.",
+        "In Xiaolin's words, the High Council is <em>\"our program for sales representatives who are seeking to work more closely with Xiaolin\"</em> to deliver its products and experiences to customers. It's the bridge from <strong>budtender</strong> to <strong>brand ambassador</strong>.",
+        "Council members get the real tools: the official <strong>Info Packet</strong>, the <strong>Retail Training Movie</strong>, and a direct line into the Temple in Evergreen — <em>\"where each concept, creation, and innovation is born.\"</em>",
+        "This academy is your audition. <strong>Certify, then log a real sale,</strong> and your invitation to apply for the High Council unlocks. That's the ultimate prize — not a coupon, a seat at the table.",
+      ],
+      quiz: [
+        { q: "What is the High Council?", o: { A: "A discount tier", B: "Xiaolin's official sales-representative / ambassador program", C: "A glass collection", D: "A monthly raffle" }, a: "B",
+          e: "The inner circle — reps who work directly with Xiaolin." },
+        { q: "What do you do to unlock your High Council invitation here?", o: { A: "Just sign up", B: "Pay a fee", C: "Certify (finish training) AND log a real sale", D: "Win the raffle" }, a: "C",
+          e: "Cert + one real sale. The academy is your audition." },
+        { q: "Which is a real High Council resource?", o: { A: "The Retail Training Movie", B: "A free vape", C: "A parking pass", D: "Nothing tangible" }, a: "A",
+          e: "Info Packet + Retail Training Movie + a line into the Temple." },
+        { q: "The High Council moves a budtender toward becoming a…", o: { A: "Cashier", B: "Brand ambassador / Xiaolin sales rep", C: "Grower", D: "Competitor" }, a: "B",
+          e: "Budtender → brand ambassador. That's the path." },
+        { q: "Where is the Temple the Council connects you to?", o: { A: "Denver", B: "Los Angeles", C: "Evergreen, Colorado", D: "New York" }, a: "C",
+          e: "Evergreen, CO — where every concept and creation is born." },
+      ],
+    },
   ],
+
+  // The ultimate prize — Xiaolin's real sales-rep inner circle. Links are live on madeinxiaolin.com.
+  highCouncil: {
+    medallion: "img/medallion.jpg",
+    blurb: "Xiaolin's official program for sales representatives who work directly with the studio. Certify and log a sale to unlock your invitation to apply.",
+    applyUrl: "https://docs.google.com/forms/d/e/1FAIpQLSdB12otvZPFUltdtxFNDmzetDyya83LY55cAdu9-faqHTb1ZA/viewform",
+    packetUrl: "https://drive.google.com/drive/folders/1museYXd29L6XYAuaC9JhglgLA3kEJv7V",
+    movieUrl: "https://drive.google.com/file/d/1bMuSECJGKJkJWaKV3uXGfzXUtuArlTKq/view?usp=drivesdk",
+  },
 
   // Earned on completing all sections.
   rewards: {
