@@ -107,7 +107,10 @@ input::placeholder{color:#c4ab93}
 .prod-row img{width:64px;height:64px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 4px 10px rgba(90,8,14,.18))}
 .prod-row .pn{font-family:var(--serif);font-size:1.15rem;color:var(--ink);font-weight:600;line-height:1}
 .prod-row .pl{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;margin:3px 0}
+.prod-row .pinfo{flex:1;min-width:0}
 .prod-row .pspecs{font-family:var(--sc);font-size:.72rem;color:var(--gold-deep);font-weight:500;margin:2px 0 3px;letter-spacing:.01em}
+.prod-row .pprice{flex-shrink:0;align-self:flex-start;font-family:var(--serif);font-weight:600;font-size:1.2rem;color:var(--red);margin-left:6px;white-space:nowrap}
+.prod-row .pprice.none{font-size:.7rem;color:var(--dim);font-weight:600;font-family:var(--sans);letter-spacing:.04em;align-self:center}
 .prod-row .pb{font-size:.78rem;color:var(--mute);line-height:1.4}
 
 /* official spec sheet */

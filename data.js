@@ -15,25 +15,27 @@ const XIAOLIN = {
   },
 
   // The lineup — official specs from the Made in Xiaolin "Premium Roll Product
-  // Lineup" budtender cheat sheet. Every roll is INFUSED (flower + concentrate).
+  // Lineup" budtender cheat sheet. Every roll is INFUSED (flower + rosin).
+  // Prices = live NY retail at Terp Bros Astoria (dispensary-set; vary by store).
+  // The infused weight is total (flower + concentrate), matching menu listings.
   products: [
-    { sku: "GODFATHER", name: "The Godfather", line: "Cannagar · Infused", img: "img/cannagars/godfather.png",
-      flower: "10g flower", conc: "2g concentrate", burn: "2–3 hours",
-      blurb: "The flagship cannagar — 10g flower infused with 2g concentrate. The longest, slowest, most ceremonial roll in the studio. Built for the table, burns 2–3 hours." },
-    { sku: "CAPO", name: "The Capo", line: "Cannagar · Infused", img: "img/cannagars/capo.png",
-      flower: "5g flower", conc: "1g concentrate", burn: "1–2 hours",
-      blurb: "Second in command — 5g flower, 1g concentrate, 1–2 hour burn. The everyday boss of the cannagar lineup." },
-    { sku: "GOOMAH", name: "The Goomah", line: "Cannagar · Infused", img: "img/cannagars/goomah.png",
-      flower: "2.5g flower", conc: "0.5g concentrate", burn: "0.5–1 hour",
-      blurb: "The entry cannagar — 2.5g flower, 0.5g concentrate, 0.5–1 hour. The seductive one: a real cannagar experience at the easiest price." },
+    { sku: "GODFATHER", name: "The Godfather VSXL", line: "Cannagar · Rosin Infused", img: "img/cannagars/godfather.png",
+      flower: "10g flower", conc: "2g rosin", burn: "2–3 hours", total: "12g", price: "$382.30",
+      blurb: "The flagship VSXL cannagar — 12g total (10g flower + 2g rosin). The longest, slowest, most ceremonial roll in the studio. Built for the table, burns 2–3 hours." },
+    { sku: "CAPO", name: "The Capo", line: "Cannagar · Rosin Infused", img: "img/cannagars/capo.png",
+      flower: "5g flower", conc: "1g rosin", burn: "1–2 hours", total: "6g", price: "$194.69",
+      blurb: "Second in command — 6g total (5g flower + 1g rosin), 1–2 hour burn. The everyday boss of the cannagar lineup." },
+    { sku: "GOOMAH", name: "The Goomah", line: "Cannagar · Rosin Infused", img: "img/cannagars/goomah.png",
+      flower: "2.5g flower", conc: "0.5g rosin", burn: "0.5–1 hour", total: "3g", price: "",
+      blurb: "The entry cannagar — 3g total (2.5g flower + 0.5g rosin), 0.5–1 hour. The seductive one: a real cannagar experience at the easiest price." },
     { sku: "SOLDATO", name: "The Soldato", line: "Infused Joint", img: "img/joints/RiceSoldato.png",
-      flower: "2g flower", conc: "0.4g concentrate", burn: "~30 minutes",
-      blurb: "The infused soldier — a fat 2g joint with 0.4g concentrate, ~30 min burn. Offered in Rice (cleaner, slower draw) and Natural paper." },
-    { sku: "BAMBINO", name: "The Bambino — Twin Pack", line: "Infused Joint", img: "img/joints/Bambino_RedTip.png",
-      flower: "0.4g ×2 flower", conc: "0.1g ×2 concentrate", burn: "5–10 min each",
-      blurb: "The little one — two infused joints (0.4g flower + 0.1g concentrate each), 5–10 min apiece. Red-tip and white-tip: your share-with-a-friend SKU." },
+      flower: "2g flower", conc: "0.4g rosin", burn: "~30 minutes", total: "", price: "",
+      blurb: "The infused soldier — a fat 2g joint with 0.4g rosin, ~30 min burn. Offered in Rice (cleaner, slower draw) and Natural paper." },
+    { sku: "BAMBINO", name: "The Bambino — 2pk", line: "Rosin Infused Joints", img: "img/joints/Bambino_RedTip.png",
+      flower: "Two joints", conc: "Rosin infused", burn: "5–10 min each", total: "3g", price: "$37.17",
+      blurb: "The little one — two rosin-infused joints (3g total), 5–10 min apiece. Red-tip and white-tip: your share-with-a-friend SKU." },
     { sku: "KNIFE", name: "The Knife", line: "Rolling Tool", img: "img/joints/lineup.png",
-      flower: "", conc: "", burn: "",
+      flower: "", conc: "", burn: "", total: "", price: "",
       blurb: "The studio's signature rolling tool. The reward piece — earned, not bought." },
   ],
 

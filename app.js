@@ -268,20 +268,23 @@ function gradeQuiz(n){
 function viewLineup(app){
   const rows = XIAOLIN.products.map(p=>{
     const specs = [p.flower, p.conc, p.burn].filter(Boolean).join(" · ");
+    const price = p.price ? `<div class="pprice">${esc(p.price)}</div>`
+      : (p.sku==="KNIFE" ? "" : `<div class="pprice none">varies</div>`);
     return `<div class="prod-row">
       <img src="${p.img}" alt="${p.name}">
-      <div>
+      <div class="pinfo">
         <div class="pn">${p.name}</div>
         <div class="pl">${p.line}</div>
         ${specs?`<div class="pspecs">${esc(specs)}</div>`:""}
         <div class="pb">${p.blurb}</div>
       </div>
+      ${price}
     </div>`;
   }).join("");
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <h1>The Lineup</h1>
-  <p class="sub">Official Premium Roll Product Lineup. Every roll is infused — flower <em>plus</em> concentrate.</p>
+  <p class="sub">Official Premium Roll Product Lineup — every roll is rosin-infused (flower <em>plus</em> concentrate). Prices are live NY retail (Terp Bros Astoria); the dispensary sets cannabis pricing, so it varies by store.</p>
   <a href="img/spec-sheet.png" target="_blank" rel="noopener" class="spec-link">
     <img class="spec-sheet" src="img/spec-sheet.png" alt="Made in Xiaolin Premium Roll Product Lineup spec sheet">
     <span>Official spec sheet · tap to enlarge</span>
