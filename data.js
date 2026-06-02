@@ -213,13 +213,28 @@ const XIAOLIN = {
     movieUrl: "https://drive.google.com/file/d/1bMuSECJGKJkJWaKV3uXGfzXUtuArlTKq/view?usp=drivesdk",
   },
 
-  // Earned on completing all sections.
+  // Points economy.
   rewards: {
     discountPct: 50,
     discountCodeStem: "XIAOLIN-ROLLER-",
-    merch: "The Knife (studio rolling tool)",
     giveaway: "Monthly VSXL cannagar draw",
+    trainingBonus: 100,   // pts for finishing all training
+    perDollar: 1,         // pts per $ sold
+    councilPts: 1000,     // pts to reach the High Council
   },
+
+  // The Rewards Vault ladder — what budtenders earn, by points.
+  // Merch is co-branded Xiaolin × the budtender's store.
+  tiers: [
+    { pts: 100,  key: "code",    icon: "🏷️", title: "50% Budtender Code",
+      desc: "Your personal discount on the entire lineup. Unlocks the moment you finish training." },
+    { pts: 400,  key: "tote",    icon: "👜", img: "img/merch/tote-red.png",
+      title: "Xiaolin Tote", desc: "Co-branded canvas tote — carry the studio. Earned at 400 pts." },
+    { pts: 700,  key: "hat",     icon: "🧢", img: "img/merch/hat-red.png",
+      title: "Xiaolin Trucker Hat", desc: "The red trucker, repping your shop. Earned, not bought — 700 pts." },
+    { pts: 1000, key: "council", icon: "👑", img: "img/medallion.jpg",
+      title: "The High Council", desc: "Xiaolin's inner circle. The ultimate prize — 1,000 pts." },
+  ],
 };
 
 if (typeof module !== "undefined") module.exports = XIAOLIN;

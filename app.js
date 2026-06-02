@@ -7,7 +7,7 @@ function loadState(){
 }
 function saveState(s){ localStorage.setItem(LS, JSON.stringify(s)); }
 function freshState(name, store){
-  return { name, store, joined: true, passed: {}, points: 0, code: null, sales: [] };
+  return { name, store, joined: true, passed: {}, points: 0, code: null, sales: [], trainBonus: false };
 }
 let S = loadState();
 if (S && !Array.isArray(S.sales)) S.sales = [];   // migrate older saves
@@ -22,9 +22,18 @@ function makeCode(name, store){
 function allPassed(){ return XIAOLIN.sections.every(s => S && S.passed[s.n]); }
 function passedCount(){ return XIAOLIN.sections.filter(s => S && S.passed[s.n]).length; }
 function saleCount(){ return S && S.sales ? S.sales.length : 0; }
-// Merch, the discount code, and the High Council invite all require BOTH:
-// finish training AND log at least one real sale.
-function canRedeem(){ return allPassed() && saleCount() >= 1; }
+function pts(){ return S ? S.points : 0; }
+// Points economy: 100 for finishing training, 1 pt per $ sold. 1000 → High Council.
+const COUNCIL_PTS = () => XIAOLIN.rewards.councilPts;
+function tierUnlocked(tier){ return pts() >= tier.pts; }
+function councilUnlocked(){ return pts() >= COUNCIL_PTS(); }
+function codeUnlocked(){ return allPassed(); }   // training done = 100 pts = code
+// Award the one-time training-completion bonus when all sections are passed.
+function awardTrainingBonus(){
+  if (S && allPassed() && !S.trainBonus){ S.trainBonus = true; S.points += XIAOLIN.rewards.trainingBonus; saveState(S); return true; }
+  return false;
+}
+function nextTier(){ return XIAOLIN.tiers.find(t => pts() < t.pts) || null; }
 
 /* ---------- tiny hash router ---------- */
 function go(hash){ location.hash = hash; }
@@ -95,47 +104,67 @@ function fillDemo(){
   document.getElementById("f_store").value = "Dave's Dispensary";
 }
 
+/* ---------- points hero + merch ladder (shared) ---------- */
+function pointsHero(){
+  const goal = COUNCIL_PTS(), p = pts();
+  const pctToCouncil = Math.min(100, Math.round(p/goal*100));
+  const nt = nextTier();
+  const need = nt ? nt.pts - p : 0;
+  return `<div class="pts-hero">
+    <div class="ph-glow"></div>
+    <div class="ph-num">${p.toLocaleString()}<span>pts</span></div>
+    <div class="ph-sub">${councilUnlocked() ? "👑 High Council unlocked" : `${need.toLocaleString()} pts to ${nt ? esc(nt.title) : "the next reward"}`}</div>
+    <div class="ph-bar"><div class="ph-fill" style="width:${pctToCouncil}%"></div>
+      <span class="ph-cap" style="left:10%">100</span><span class="ph-cap" style="left:40%">400</span>
+      <span class="ph-cap" style="left:70%">700</span><span class="ph-cap end">1000 👑</span></div>
+    <div class="ph-rule">Earn <b>1 pt per $1</b> you sell · <b>+100</b> for finishing training</div>
+  </div>`;
+}
+function merchLadder(compact){
+  const cards = XIAOLIN.tiers.map(t=>{
+    const got = tierUnlocked(t);
+    const media = t.img ? `<img src="${t.img}" alt="${esc(t.title)}">` : `<div class="ml-ico">${t.icon}</div>`;
+    const store = esc((S.store||"").trim());
+    const title = (t.key==="tote"||t.key==="hat") && store ? `${esc(t.title)}` : esc(t.title);
+    return `<div class="ml-item ${got?'got':'locked'}">
+      <div class="ml-media">${media}<span class="ml-badge">${got?'✓ Earned':t.pts.toLocaleString()+' pts'}</span></div>
+      <div class="ml-body">
+        <div class="ml-t">${title}</div>
+        ${(t.key==="tote"||t.key==="hat")&&store?`<div class="ml-co">Xiaolin × ${store}</div>`:""}
+        ${compact?"":`<div class="ml-d">${esc(t.desc)}</div>`}
+      </div>
+    </div>`;
+  }).join("");
+  return `<div class="merch-ladder${compact?' compact':''}">${cards}</div>`;
+}
+
 /* ---------- dashboard ---------- */
 function viewDashboard(app){
   const done = passedCount(), total = XIAOLIN.sections.length;
-  const pct = Math.round(done/total*100);
   const complete = allPassed();
-  const sales = saleCount();
-  const redeem = canRedeem();
-  if (redeem && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
-  const codeBlock = redeem
+  if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
+  const codeBlock = codeUnlocked()
     ? `<div class="codechip"><div class="l">Your Budtender Code · ${XIAOLIN.rewards.discountPct}% Off</div><div class="c">${S.code}</div></div>`
-    : `<div class="codechip locked"><div class="l">Rewards — Locked</div><div class="c">Finish training + log 1 sale</div></div>`;
-  // Two-step unlock tracker
-  const step = (ok, label, sub) => `<div class="unlock-step ${ok?'done':''}">
-      <span class="us-tick">${ok?'✓':'○'}</span>
-      <div><div class="us-l">${label}</div><div class="us-s">${sub}</div></div></div>`;
+    : `<div class="codechip locked"><div class="l">50% Code — Locked</div><div class="c">Finish training (+100 pts) to unlock</div></div>`;
   app.innerHTML = `${topbar()}
   <div class="kicker">Welcome, ${esc(S.name.split(" ")[0])}</div>
   <h1 style="font-size:2.4rem">${esc(S.store)}</h1>
-  <hr class="hr">
-  <div class="card">
-    <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Unlock your rewards</h3>
-    <div class="prog-outer"><div class="prog-inner" style="width:${pct}%"></div></div>
-    <div class="prog-label">${done} of ${total} sections passed${complete?" · Certified ✓":""}</div>
-    <div class="unlock-steps">
-      ${step(complete, "1 · Finish training", complete ? "All sections passed" : `${total-done} section${total-done===1?'':'s'} to go`)}
-      ${step(sales>=1, "2 · Log your first sale", sales>=1 ? `${sales} sale${sales===1?'':'s'} logged` : "Scan a receipt to log a Xiaolin sale")}
-    </div>
-  </div>
+  ${pointsHero()}
+  ${!complete?`<div class="card" style="margin-top:14px">
+    <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Step 1 · Get certified</h3>
+    <div class="prog-outer" style="margin-top:8px"><div class="prog-inner" style="width:${Math.round(done/total*100)}%"></div></div>
+    <div class="prog-label">${done} of ${total} sections passed — finish for <b style="color:var(--gold)">+100 pts</b></div>
+  </div>`:""}
   ${codeBlock}
   <a class="btn ${complete?'ghost':''}" href="#/training">${complete?'Review Training':'Continue Training →'}</a>
-  <a class="btn ${complete&&sales<1?'gold':'ghost'}" href="#/sale">📷 ${sales<1?'Log a Sale (Receipt Scan)':'Log Another Sale'}</a>
+  <a class="btn ${complete?'gold':'ghost'}" href="#/sale">📷 Log a Sale (1 pt / $) →</a>
   <a class="btn ghost" href="#/lineup">Study the Lineup</a>
-  ${redeem?`<a class="btn gold" href="#/reward">Claim Your Reward →</a>`:""}
 
-  <h3 style="margin:24px 0 4px;font-family:var(--serif);font-size:1.4rem;color:var(--red);font-weight:600">Roller Perks</h3>
-  <div class="perks">
-    <div class="perk"><div class="pi">👑</div><div class="pt">The High Council</div><div class="pp">The ultimate prize — Xiaolin's inner circle.</div></div>
-    <div class="perk"><div class="pi">🎟️</div><div class="pt">Monthly VSXL Draw</div><div class="pp">Win a cannagar once you're certified + selling.</div></div>
-    <div class="perk"><div class="pi">🔪</div><div class="pt">The Knife</div><div class="pp">Earn the studio's signature rolling tool.</div></div>
-    <div class="perk"><div class="pi">🏷️</div><div class="pt">${XIAOLIN.rewards.discountPct}% Budtender Off</div><div class="pp">Your personal code on the full lineup.</div></div>
+  <div class="vault-head">
+    <h3>The Rewards Vault</h3>
+    <a href="#/reward" class="vault-link">View all →</a>
   </div>
+  ${merchLadder(true)}
   ${foot()}`;
 }
 
@@ -162,9 +191,9 @@ function viewTrainingHub(app){
     <span>Straight from the studio · ~optional but recommended</span>
   </a>
   <div class="sect-grid">${cards}</div>
-  ${allPassed() ? (canRedeem()
-      ? `<a class="btn gold" href="#/reward">You're Certified — Claim Reward →</a>`
-      : `<a class="btn gold" href="#/sale">Certified! Now log a sale to unlock →</a>`) : ""}
+  ${allPassed()
+      ? `<a class="btn gold" href="#/sale">Certified! Log a sale to climb to 1,000 →</a>`
+      : ""}
   ${foot()}`;
 }
 
@@ -239,21 +268,18 @@ function gradeQuiz(n){
   const pct = Math.round(correct/qs.length*100);
   const passed = correct/qs.length >= PASS;
   const slot = document.getElementById("scoreSlot");
-  if (passed && !S.passed[n]){ S.passed[n] = true; S.points += 50; saveState(S); }
+  if (passed && !S.passed[n]){ S.passed[n] = true; saveState(S); }
   const justCertified = passed && allPassed();
-  const needsSale = justCertified && saleCount() < 1;
+  if (justCertified) awardTrainingBonus();   // one-time +100 on completion
   let msg, cta;
   if (!passed){
     msg = "You need 80% to pass. Re-read the section and try again — answers are explained below.";
     cta = `<a class="btn" href="#/training/${n}">Re-read Section ${n}</a>`;
-  } else if (needsSale){
-    msg = "That's all the training — you're a Certified Xiaolin Roller. One step left: log a real sale to unlock your code, merch, and your High Council invitation.";
-    cta = `<a class="btn gold" href="#/sale">Log Your First Sale →</a>`;
   } else if (justCertified){
-    msg = "Certified and selling — your rewards are unlocked.";
-    cta = `<a class="btn gold" href="#/reward">Claim Your Reward →</a>`;
+    msg = `Certified Xiaolin Roller — <b>+${XIAOLIN.rewards.trainingBonus} points</b> and your 50% code is unlocked. Now every $1 you sell = 1 point. Climb to <b>1,000</b> and the High Council opens.`;
+    cta = `<a class="btn gold" href="#/reward">Open the Rewards Vault →</a>`;
   } else {
-    msg = "+50 Roller Points. Next section unlocked.";
+    msg = "Section passed. Next section unlocked — finish all 7 for +100 points.";
     cta = `<a class="btn" href="#/training">Continue to Next Section →</a>`;
   }
   slot.innerHTML = `<div class="score ${passed?'pass':'fail'}">
@@ -422,50 +448,55 @@ function logSale(){
   // Validation gate: if OCR couldn't verify the brand, make the budtender confirm.
   if (window._verified === false &&
       !confirm("This receipt didn't scan as a Made in Xiaolin sale. Log it anyway?")) return;
-  const first = saleCount() === 0;
-  S.sales.push({ product: prod, sku, amount: amt.toFixed(2), verified: window._verified === true });
-  S.points += 25 + (first ? 50 : 0) + (window._verified === true ? 10 : 0);
+  const earned = Math.round(amt * XIAOLIN.rewards.perDollar);   // 1 pt per $ sold
+  S.sales.push({ product: prod, sku, amount: amt.toFixed(2), verified: window._verified === true, earned });
+  S.points += earned;
   saveState(S);
-  if (canRedeem() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
-  if (canRedeem()) go("#/reward");
-  else { alert("Sale logged! "+(allPassed()?"":"Finish training to unlock your rewards.")); go("#/dashboard"); }
+  if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
+  const reached = councilUnlocked();
+  alert(`Sale logged — +${earned} points!` + (reached ? "  You've hit 1,000 — the High Council is open." :
+        (allPassed() ? "" : "  Finish training for +100 and your code.")));
+  go(reached ? "#/reward" : "#/dashboard");
 }
 
-/* ---------- reward ---------- */
+/* ---------- rewards vault ---------- */
 function viewReward(app){
-  if (!canRedeem()){ return go(allPassed() ? "#/sale" : "#/training"); }
-  if (!S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
   const hc = XIAOLIN.highCouncil;
+  if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
+  const codeBlock = codeUnlocked()
+    ? `<div class="codechip"><div class="l">Your Budtender Code · ${XIAOLIN.rewards.discountPct}% Off</div><div class="c">${S.code}</div></div>`
+    : `<div class="codechip locked"><div class="l">50% Code — Locked</div><div class="c">Finish training (+100 pts) to unlock</div></div>`;
+
+  const council = councilUnlocked()
+    ? `<div class="council">
+        <img class="council-seal" src="${hc.medallion}" alt="Xiaolin Medallion">
+        <div class="ut" style="color:var(--gold-soft)">1,000 Points · The Ultimate Prize</div>
+        <h2 style="color:#fff;font-family:var(--serif);font-size:2.1rem;margin:6px 0">Ascend to the High Council</h2>
+        <p style="color:#e7c9ad;font-size:.92rem;line-height:1.55">${esc(hc.blurb.replace(/Certify and log a sale.*/,''))} You hit 1,000 — this is the seat at the table.</p>
+        <a class="btn gold" href="${hc.applyUrl}" target="_blank" rel="noopener" style="margin-top:16px">Apply to the High Council →</a>
+        <div class="council-links">
+          <a href="${hc.movieUrl}" target="_blank" rel="noopener">▶ Retail Training Movie</a>
+          <a href="${hc.packetUrl}" target="_blank" rel="noopener">📄 Info Packet</a>
+        </div>
+      </div>`
+    : `<div class="council locked">
+        <img class="council-seal dim" src="${hc.medallion}" alt="Xiaolin Medallion">
+        <div class="ut" style="color:var(--gold-soft)">The Ultimate Prize · 1,000 pts</div>
+        <h2 style="color:#fff;font-family:var(--serif);font-size:2rem;margin:6px 0">The High Council 🔒</h2>
+        <p style="color:#e7c9ad;font-size:.9rem;line-height:1.5">Xiaolin's inner circle. ${esc((COUNCIL_PTS()-pts()).toLocaleString())} more points and your invitation to apply unlocks.</p>
+        <a class="btn gold" href="#/sale" style="margin-top:14px">Log a Sale to Climb →</a>
+      </div>`;
+
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
-  <div class="unlock">
-    <div class="ut">Certified Xiaolin Roller · Selling</div>
-    <h2>Rolled Proper.</h2>
-    <p style="color:#e7c9ad;margin-top:4px">${esc(S.name)} — you know the lineup and you've made the sale. Here's what you've earned.</p>
-    <div class="code">${S.code}</div>
-    <p style="color:#ffe6a8;font-weight:600;font-size:.85rem">${XIAOLIN.rewards.discountPct}% budtender discount · show this code in-store</p>
-    <div class="gv">🎟️ Entered in the <strong>${esc(XIAOLIN.rewards.giveaway)}</strong>.</div>
-    <div class="gv">🔪 Eligible to claim <strong>${esc(XIAOLIN.rewards.merch)}</strong> at your next rep visit.</div>
-  </div>
-
-  <!-- ULTIMATE PRIZE — the High Council -->
-  <div class="council">
-    <img class="council-seal" src="${hc.medallion}" alt="Xiaolin Medallion">
-    <div class="ut" style="color:var(--gold-soft)">The Ultimate Prize</div>
-    <h2 style="color:#fff;font-family:var(--serif);font-size:2.1rem;margin:6px 0">Ascend to the High Council</h2>
-    <p style="color:#e7c9ad;font-size:.92rem;line-height:1.55">${esc(hc.blurb)} You've earned your invitation — this is the seat at the table.</p>
-    <a class="btn gold" href="${hc.applyUrl}" target="_blank" rel="noopener" style="margin-top:16px">Apply to the High Council →</a>
-    <div class="council-links">
-      <a href="${hc.movieUrl}" target="_blank" rel="noopener">▶ Retail Training Movie</a>
-      <a href="${hc.packetUrl}" target="_blank" rel="noopener">📄 Info Packet</a>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3 style="font-family:var(--serif);font-size:1.3rem;color:var(--red);font-weight:600">What's next</h3>
-    <p style="margin-top:6px">Screenshot your code and apply to the Council above. This is the MVP — live sales tracking, receipt OCR/verification, and the monthly draw come with the backend.</p>
-  </div>
-  <a class="btn ghost" href="#/sale">Log Another Sale</a>
+  <div class="kicker">Rewards Vault</div>
+  <h1>Earn the Gear</h1>
+  <p class="sub">Every $1 you sell = 1 point. Climb the ladder — your code, your Xiaolin × ${esc(S.store)} merch, then a seat on the High Council at 1,000.</p>
+  ${pointsHero()}
+  ${codeBlock}
+  ${merchLadder(false)}
+  ${council}
+  <a class="btn gold" href="#/sale">📷 Log a Sale (1 pt / $) →</a>
   <a class="btn ghost" href="#/lineup">Brush Up on the Lineup</a>
   ${foot()}`;
   window.scrollTo(0,0);
