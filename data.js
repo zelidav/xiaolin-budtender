@@ -50,10 +50,10 @@ const XIAOLIN = {
   ],
 
   modules: [
-    { id: 1, level: "Basic",    title: "Welcome to the Family", tag: "The brand & the family", bonus: 50 },
-    { id: 2, level: "Medium",   title: "Know the Product",      tag: "Lineup, specs & price",  bonus: 75 },
-    { id: 3, level: "Advanced", title: "Sell Like a Made Man",  tag: "Spot the baller, close", bonus: 125 },
-    { id: 4, level: "High Council", title: "The High Council",  tag: "Roles, workshops, craft", bonus: 150 },
+    { id: 1, level: "Basic",    title: "Welcome to the Family", tag: "The brand & the family", bonus: 100 },
+    { id: 2, level: "Medium",   title: "Know the Product",      tag: "Lineup, specs & price",  bonus: 200 },
+    { id: 3, level: "Advanced", title: "Sell Like a Made Man",  tag: "Spot the baller, close", bonus: 300 },
+    { id: 4, level: "High Council", title: "The High Council",  tag: "Roles, workshops, craft", bonus: 500 },
   ],
 
   sections: [

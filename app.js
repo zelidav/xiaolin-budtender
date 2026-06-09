@@ -1,17 +1,60 @@
 /* Made in Xiaolin — Roller Academy. Client-only SPA (localStorage). MVP, no backend yet. */
 const PASS = 0.8;
-const LS = "xiaolin_roller_v1";
+/* ---------- multi-user store (MVP: localStorage; backend phase = real sync) ---------- */
+const DB_KEY = "xiaolin_db_v2", CUR_KEY = "xiaolin_cur_v2", ADMIN_KEY = "xiaolin_admin_v2";
+const ADMIN_CODE = "XHC-ADMIN";   // access code embedded in admin links
+function loadDB(){ try { return JSON.parse(localStorage.getItem(DB_KEY)); } catch(e){ return null; } }
+function saveDB(){ try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch(e){} }
 
-function loadState(){
-  try { return JSON.parse(localStorage.getItem(LS)) || null; } catch(e){ return null; }
+function seedDB(){
+  const stores = [
+    { id: "xiaolin-disp", name: "Xiaolin Dispensary" },
+    { id: "terp-bros",    name: "Terp Bros Astoria" },
+    { id: "alto-canna",   name: "Alto Canna NYC" },
+    { id: "daves",        name: "Dave's Dispensary" },
+  ];
+  const allSec = {}; for (let i=1;i<=13;i++) allSec[i]=true;
+  const sub = (keys)=>{ const o={}; keys.forEach(k=>o[k]=true); return o; };
+  const sc = (keys)=>{ const o={}; keys.forEach(k=>o[k]={correct:5,total:5,pct:100}); return o; };
+  const sale = (sku,prod,amt,earned,receipt)=>({ product:prod, sku, amount:amt, earned, receipt, verified:true, date:"2026-06-09" });
+  const mk = (id,name,email,store,role,passed,moduleBonus,sales,scores)=>{
+    const pts = Object.keys(moduleBonus).reduce((a,k)=>a+(XIAOLIN.modules.find(m=>m.id==k)||{bonus:0}).bonus,0)
+              + sales.reduce((a,s)=>a+(s.earned||0),0);
+    return { id, name, email, store, role, joined:true, passed, moduleBonus, sales, scores: scores||{}, points: pts, code: makeCode(name,store), created:"2026-06-09" };
+  };
+  const users = {};
+  users["david-z"] = mk("david-z", "David Z", "david@canismajorpartners.com", "Xiaolin Dispensary", "admin",
+    allSec, {1:1,2:1,3:1,4:1},
+    [ sale("GODFATHER","The Godfather","420.00",255,"img/receipts/r-david.png"),
+      sale("CAPO","The Capo","195.00",130,"img/receipts/r-david.png"),
+      sale("BAMBINO","The Bambino — 2pk","37.00",20,"img/receipts/r-david.png") ], sc([1,2,3,4,5,6,7,8,9,10,11,12,13]));
+  users["chris-ls"] = mk("chris-ls", 'Christopher "LS" Louie', "ls@madeinxiaolin.com", "Xiaolin Dispensary", "admin",
+    allSec, {1:1,2:1,3:1,4:1},
+    [ sale("GODFATHER","The Godfather","420.00",255,"img/receipts/r-chris.png"),
+      sale("GODFATHER","The Godfather","420.00",255,"img/receipts/r-chris.png"),
+      sale("GOOMAH","The Goomah","120.00",70,"img/receipts/r-chris.png") ], sc([1,2,3,4,5,6,7,8,9,10,11,12,13]));
+  users["maria-c"] = mk("maria-c", "Maria Chen", "", "Terp Bros Astoria", "budtender",
+    sub([1,2,3,4,5,6]), {1:1,2:1}, [ sale("CAPO","The Capo","195.00",130,"img/receipts/r-david.png") ], sc([1,2,3,4,5,6]));
+  users["jay-r"]   = mk("jay-r", "Jay Rivera", "", "Alto Canna NYC", "budtender",
+    sub([1,2,3]), {1:1}, [ sale("GOOMAH","The Goomah","120.00",70,"img/receipts/r-chris.png") ], sc([1,2,3]));
+  users["sam-k"]   = mk("sam-k", "Sam Kim", "", "Dave's Dispensary", "budtender",
+    allSec, {1:1,2:1,3:1,4:1}, [ sale("BAMBINO","The Bambino — 2pk","37.00",20,"img/receipts/r-david.png") ], sc([1,2,3,4,5,6,7,8,9,10,11,12,13]));
+  users["tara-w"]  = mk("tara-w", "Tara White", "", "Terp Bros Astoria", "budtender",
+    sub([1,2,3]), {1:1}, [], sc([1,2,3]));
+  return { stores, users, v: 2 };
 }
-function saveState(s){ localStorage.setItem(LS, JSON.stringify(s)); }
+
+let DB = loadDB() || seedDB();
+saveDB();
+let CURRENT = localStorage.getItem(CUR_KEY) || null;
+let S = (CURRENT && DB.users[CURRENT]) ? DB.users[CURRENT] : null;
+function saveState(s){ if (s && s.id){ DB.users[s.id] = s; saveDB(); } }
+function setCurrent(uid){ CURRENT = uid; localStorage.setItem(CUR_KEY, uid); S = DB.users[uid] || null; }
+function isAdmin(){ return localStorage.getItem(ADMIN_KEY) === "1" || (S && S.role === "admin"); }
+function uid(name, store){ return (name+"-"+store).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") + "-" + (Object.keys(DB.users).length); }
 function freshState(name, store){
-  return { name, store, joined: true, passed: {}, points: 0, code: null, sales: [], moduleBonus: {} };
+  return { id: uid(name,store), name, store, role:"budtender", joined: true, passed: {}, points: 0, code: null, sales: [], moduleBonus: {}, scores: {}, created: "2026-06-09" };
 }
-let S = loadState();
-if (S && !Array.isArray(S.sales)) S.sales = [];          // migrate older saves
-if (S && !S.moduleBonus) S.moduleBonus = {};
 
 // Deterministic per-roller code (no Date/random needed for MVP).
 function makeCode(name, store){
@@ -52,6 +95,8 @@ function go(hash){ location.hash = hash; }
 function render(){
   const app = document.getElementById("app");
   const h = location.hash || "#/";
+  // admin panel is reachable without a logged-in budtender
+  if (h === "#/admin" || h.indexOf("#/admin/") === 0){ if (isAdmin()) return viewAdmin(app); return go("#/"); }
   // gate: must join before anything else
   if (!S || !S.joined){ if (h !== "#/") return go("#/"); }
   const m = h.match(/^#\/training\/(\d+)\/quiz$/);
@@ -64,6 +109,7 @@ function render(){
     case "#/lineup": return viewLineup(app);
     case "#/sale": return viewSale(app);
     case "#/reward": return viewReward(app);
+    case "#/exchange": return viewExchange(app);
     default: return S && S.joined ? viewDashboard(app) : viewCover(app);
   }
 }
@@ -71,13 +117,16 @@ window.addEventListener("hashchange", render);
 
 /* ---------- shared chrome ---------- */
 function topbar(){
-  const pts = S ? S.points : 0;
+  const p = S ? S.points : 0;
   return `<div class="topbar">
     <a class="brand" href="#/dashboard" style="text-decoration:none">
       <img src="img/xiaolin-logo.png" alt="Made in Xiaolin">
       <div><div class="nm">Made in Xiaolin</div><div class="ac">Roller Academy</div></div>
     </a>
-    <div class="pts"><b>${pts}</b>Roller Pts</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      ${isAdmin()?`<a href="#/admin" class="admin-chip">ADMIN</a>`:""}
+      <div class="pts"><b>${p}</b>Roller Pts</div>
+    </div>
   </div>`;
 }
 function foot(){ return `<div class="foot">Rolled Proper · Made in New York · Warwick, NY</div>`; }
@@ -101,7 +150,7 @@ function viewCover(app){
         <div class="es-item"><div class="es-pic"><img src="img/merch/hat-red.png" alt="hat"></div><div class="es-c">Trucker Hat</div><div class="es-p">700 pts</div></div>
         <div class="es-item"><div class="es-pic"><img src="img/medallion.jpg" alt="council"></div><div class="es-c">High Council</div><div class="es-p">1000 pts</div></div>
       </div>
-      <div class="es-rule">Earn points per sale (up to <b>255</b>) · 3 modules pay <b>+250</b></div>
+      <div class="es-rule">Earn per sale (up to <b>255</b>) · the 4 modules pay <b>1,100</b></div>
     </div>
   </div>
   <div class="card">
@@ -120,7 +169,8 @@ function doJoin(){
   const name = document.getElementById("f_name").value.trim();
   const store = document.getElementById("f_store").value.trim();
   if (!name || !store){ document.getElementById("joinErr").classList.add("show"); return; }
-  S = freshState(name, store); saveState(S); go("#/dashboard");
+  const nu = freshState(name, store); DB.users[nu.id] = nu; setCurrent(nu.id); saveState(nu);
+  go("#/dashboard");
 }
 function fillDemo(){
   document.getElementById("f_name").value = "Dave Z";
@@ -140,7 +190,7 @@ function pointsHero(){
     <div class="ph-bar"><div class="ph-fill" style="width:${pctToCouncil}%"></div>
       <span class="ph-cap" style="left:10%">100</span><span class="ph-cap" style="left:40%">400</span>
       <span class="ph-cap" style="left:70%">700</span><span class="ph-cap end">1000 👑</span></div>
-    <div class="ph-rule">Points per sale — Godfather <b>255</b> · Capo <b>130</b> · Goomah <b>70</b> · Bambino <b>20</b> · modules <b>50/75/125/150</b></div>
+    <div class="ph-rule">Points per sale — Godfather <b>255</b> · Capo <b>130</b> · Goomah <b>70</b> · Bambino <b>20</b> · modules <b>100/200/300/500</b></div>
   </div>`;
 }
 function merchLadder(compact){
@@ -176,7 +226,7 @@ function viewDashboard(app){
   ${!complete?`<div class="card" style="margin-top:14px">
     <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Training · 3 modules → High Council</h3>
     <div class="prog-outer" style="margin-top:8px"><div class="prog-inner" style="width:${Math.round(done/total*100)}%"></div></div>
-    <div class="prog-label">${done} of ${total} sections passed — modules pay <b style="color:var(--gold)">50 / 75 / 125 / 150 pts</b></div>
+    <div class="prog-label">${done} of ${total} sections passed — modules pay <b style="color:var(--gold)">100 / 200 / 300 / 500 pts</b></div>
   </div>`:""}
   ${codeBlock}
   <a class="btn ${complete?'ghost':''}" href="#/training">${complete?'Review Training':'Continue Training →'}</a>
@@ -315,7 +365,11 @@ function gradeQuiz(n){
   const pct = Math.round(correct/qs.length*100);
   const passed = correct/qs.length >= PASS;
   const slot = document.getElementById("scoreSlot");
-  if (passed && !S.passed[n]){ S.passed[n] = true; saveState(S); }
+  // record the score (keep the best attempt)
+  S.scores = S.scores || {};
+  if (!S.scores[n] || pct >= S.scores[n].pct) S.scores[n] = { correct, total: qs.length, pct };
+  if (passed && !S.passed[n]){ S.passed[n] = true; }
+  saveState(S);
   const sec = XIAOLIN.sections.find(x=>x.n===n);
   const moduleJustDone = passed ? awardModuleBonus() : null;   // awards module bonus if completed
   let msg, cta;
@@ -381,35 +435,37 @@ function viewLineup(app){
 /* ---------- receipt scanner (real OCR via Tesseract.js) ---------- */
 function viewSale(app){
   const opts = XIAOLIN.products.map(p=>`<option value="${p.sku}">${esc(p.name)} — ${esc(p.line)}</option>`).join("");
-  const prior = S.sales.map((sl)=>`<div class="sale-row"><span>${sl.verified?'✅':'🧾'} ${esc(sl.product)}</span><span>$${esc(sl.amount)}</span></div>`).join("");
+  const prior = S.sales.map((sl)=>`<div class="sale-row">
+    ${sl.receipt?`<img class="rcpt-thumb" src="${sl.receipt}" onclick="showImg('${sl.receipt}')" alt="receipt">`:`<span style="width:34px;text-align:center">🧾</span>`}
+    <span class="sr-name">${esc(sl.product)}</span>
+    <span class="sr-pts">+${sl.earned||0}</span>
+    <span class="sr-amt">$${esc(sl.amount)}</span></div>`).join("");
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <div class="kicker">Receipt Scanner</div>
   <h1>Log a Sale</h1>
-  <p class="sub">Snap a receipt with a Made in Xiaolin sale. We read it on-device and verify the brand — nothing leaves your phone.${allPassed()?'':' (You can log any time, but rewards unlock only after training is done too.)'}</p>
+  <p class="sub">Log a Made in Xiaolin sale — attach a photo of the receipt, pick the product, and bank the points. Points are per product (Godfather 255 · Capo 130 · Goomah 70 · Soldato 45 · Bambino 20).</p>
 
   <div class="card">
     <label>Receipt photo</label>
     <label for="rfile" class="scan-drop" id="scanDrop">
-      <div id="scanInner"><div class="scan-ico">📷</div><div class="scan-t">Tap to add receipt photo</div><div class="scan-s">Snap or upload · read on-device</div></div>
+      <div id="scanInner"><div class="scan-ico">📷</div><div class="scan-t">Tap to attach receipt</div><div class="scan-s">Snap or upload · stays on your device</div></div>
       <img id="scanPrev" class="scan-prev hidden" alt="receipt preview">
     </label>
     <input id="rfile" type="file" accept="image/*" capture="environment" class="hidden" onchange="onReceipt(event)">
 
-    <div id="ocrResult"></div>
-
     <div class="field"><label>What did you sell?</label>
       <select id="rprod" class="sel">${opts}</select></div>
     <div class="field"><label>Sale amount (USD)</label>
-      <input id="ramt" type="number" inputmode="decimal" min="1" placeholder="e.g. 120"></div>
+      <input id="ramt" type="number" inputmode="decimal" min="1" placeholder="e.g. 420"></div>
 
-    <div class="err" id="saleErr">Add a receipt photo and an amount to log the sale.</div>
+    <div class="err" id="saleErr">Attach a receipt photo and an amount to log the sale.</div>
     <button class="btn" id="logBtn" onclick="logSale()">Log This Sale</button>
   </div>
 
   ${prior?`<h3 style="margin:22px 0 6px;font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600">Your logged sales</h3><div class="card" style="padding:6px 18px">${prior}</div>`:""}
   ${foot()}`;
-  window._receipt = null; window._verified = null; window._ocrText = "";
+  window._receiptImg = null;
   window.scrollTo(0,0);
 }
 
@@ -420,91 +476,25 @@ function onReceipt(ev){
   const inner = document.getElementById("scanInner");
   const reader = new FileReader();
   reader.onload = e => {
-    const dataUrl = e.target.result;
+    window._receiptImg = e.target.result;     // attach the photo to the log
     const prev = document.getElementById("scanPrev");
-    prev.src = dataUrl; prev.classList.remove("hidden");
+    prev.src = e.target.result; prev.classList.remove("hidden");
     inner.classList.add("hidden");
     drop.classList.remove("scanning"); drop.classList.add("captured");
-    window._receipt = true;
-    runOCR(dataUrl);
   };
   reader.readAsDataURL(f);
-}
-
-function ocrStatus(html){ const el=document.getElementById("ocrResult"); if(el) el.innerHTML=html; }
-
-async function runOCR(dataUrl){
-  ocrStatus(`<div class="ocr scanning"><span class="spin">◠</span> Reading receipt on-device…</div>`);
-  if (typeof Tesseract === "undefined"){
-    // OCR library didn't load — let the budtender confirm manually.
-    window._verified = null;
-    ocrStatus(`<div class="ocr warn">Couldn't load the scanner here. Confirm the product + amount below and log manually.</div>`);
-    return;
-  }
-  try{
-    const { data } = await Tesseract.recognize(dataUrl, "eng", {
-      logger: m => { if (m.status === "recognizing text") ocrStatus(`<div class="ocr scanning"><span class="spin">◠</span> Reading receipt… ${Math.round((m.progress||0)*100)}%</div>`); }
-    });
-    applyOCR(data.text || "");
-  }catch(err){
-    window._verified = null;
-    ocrStatus(`<div class="ocr warn">Scan didn't complete. Enter the product + amount below and log manually.</div>`);
-  }
-}
-
-// Parse OCR text → verify brand, detect products, pull the total. Prefill the form.
-function applyOCR(text){
-  window._ocrText = text;
-  const low = text.toLowerCase();
-  const brand = /xiaolin/.test(low);
-  const PKEYS = [
-    {sku:"GODFATHER", re:/godfather/}, {sku:"CAPO", re:/\bcapo\b/}, {sku:"GOOMAH", re:/goomah/},
-    {sku:"SOLDATO", re:/soldato/}, {sku:"BAMBINO", re:/bambino/},
-  ];
-  const found = PKEYS.filter(p => p.re.test(low));
-  // amount: prefer a line containing "total", else the largest $ figure on the receipt
-  const money = m => parseFloat(m.replace(/[^0-9.]/g,""));
-  let amount = null;
-  const totalLine = text.split(/\n/).find(l => /total/i.test(l) && /\d/.test(l) && !/subtotal/i.test(l));
-  const grab = s => { const m = (s||"").match(/\$?\s?\d{1,4}\.\d{2}/g); return m ? m.map(money) : []; };
-  const tvals = grab(totalLine);
-  if (tvals.length) amount = Math.max(...tvals);
-  if (amount == null){ const all = grab(text); if (all.length) amount = Math.max(...all); }
-
-  // prefill product dropdown + amount
-  if (found.length){ const sel = document.getElementById("rprod"); if (sel) sel.value = found[0].sku; }
-  if (amount != null){ const a = document.getElementById("ramt"); if (a && !a.value) a.value = amount.toFixed(2); }
-
-  window._verified = brand;
-  const names = found.map(f => (XIAOLIN.products.find(p=>p.sku===f.sku)||{}).name).filter(Boolean);
-  if (brand){
-    ocrStatus(`<div class="ocr ok">
-      <div class="ocr-h">✓ Verified Made in Xiaolin receipt</div>
-      ${names.length?`<div class="ocr-d">Detected: ${esc(names.join(", "))}</div>`:""}
-      ${amount!=null?`<div class="ocr-d">Total read: <b>$${amount.toFixed(2)}</b> — confirm below.</div>`:`<div class="ocr-d">Couldn't read a total — enter the amount below.</div>`}
-    </div>`);
-  } else {
-    ocrStatus(`<div class="ocr warn">
-      <div class="ocr-h">⚠ Couldn't find "Xiaolin" on this receipt</div>
-      <div class="ocr-d">Make sure the brand line is in frame, or pick the product + amount and log manually.</div>
-    </div>`);
-  }
 }
 
 function logSale(){
   const amt = parseFloat(document.getElementById("ramt").value);
   const sku = document.getElementById("rprod").value;
   const prod = (XIAOLIN.products.find(p=>p.sku===sku)||{}).name || sku;
-  if (!window._receipt || !amt || amt <= 0){
+  if (!window._receiptImg || !amt || amt <= 0){
     document.getElementById("saleErr").classList.add("show"); return;
   }
-  // Validation gate: if OCR couldn't verify the brand, make the budtender confirm.
-  if (window._verified === false &&
-      !confirm("This receipt didn't scan as a Made in Xiaolin sale. Log it anyway?")) return;
-  // Commissary points are per-product (real program values), not per dollar.
   const earned = (XIAOLIN.commissary.earn[sku]) || Math.max(1, Math.round(amt / 3));
   const wasUnder = !councilUnlocked();
-  S.sales.push({ product: prod, sku, amount: amt.toFixed(2), verified: window._verified === true, earned });
+  S.sales.push({ product: prod, sku, amount: amt.toFixed(2), earned, receipt: window._receiptImg, verified: true, date: "2026-06-09" });
   S.points += earned;
   saveState(S);
   if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
@@ -512,6 +502,175 @@ function logSale(){
   alert(`Sale logged — +${earned} points (${esc(prod)})!` + (reached && wasUnder ? "  You've hit 1,000 — the High Council is open." :
         (allPassed() ? "" : "  Finish the modules for bonus points + your code.")));
   go(reached ? "#/reward" : "#/dashboard");
+}
+
+/* ---------- shared helpers: scoring, QR, lightbox ---------- */
+function scoreList(u){ u=u||S; const v=Object.values(u.scores||{}); return v; }
+function avgScore(u){ const v=scoreList(u); if(!v.length) return null; return Math.round(v.reduce((a,s)=>a+s.pct,0)/v.length); }
+function qrUrl(data){ return "https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=" + encodeURIComponent(data); }
+function acctLink(uid){ return location.origin + location.pathname + "?u=" + uid + "#/dashboard"; }
+function adminLink(){ return location.origin + location.pathname + "?admin=" + ADMIN_CODE + "#/admin"; }
+function showImg(src){
+  let o = document.getElementById("imgLight");
+  if (!o){ o = document.createElement("div"); o.id="imgLight"; o.className="img-light"; o.onclick=()=>o.remove(); document.body.appendChild(o); }
+  o.innerHTML = `<img src="${src}" alt="receipt">`;
+}
+
+/* ---------- exchange / Commissary redemption ---------- */
+function exchangeItems(){
+  const prod = XIAOLIN.commissary.redeem.map(r=>({ key:r.sku, kind:"product", name:r.name, pts:r.pts, img:r.img }));
+  const merch = [
+    { key:"TOTE", kind:"merch", name:"Xiaolin × Store Tote", pts:1500, img:"img/merch/tote-red.png" },
+    { key:"HAT",  kind:"merch", name:"Xiaolin Trucker Hat",  pts:2500, img:"img/merch/hat-red.png" },
+  ];
+  return merch.concat(prod);
+}
+function viewExchange(app){
+  S.redemptions = S.redemptions || [];
+  const p = pts();
+  const items = exchangeItems().map(it=>{
+    const can = p >= it.pts;
+    return `<div class="ex-item ${can?'can':'no'}">
+      <div class="ex-media"><img src="${it.img}" alt="${esc(it.name)}"><span class="ex-tag">${it.kind}</span></div>
+      <div class="ex-b">
+        <div class="ex-n">${esc(it.name)}</div>
+        <div class="ex-p">${it.pts.toLocaleString()} pts</div>
+        <button class="btn ${can?'gold':''}" ${can?'':'disabled'} onclick="doExchange('${it.key}')">${can?'Redeem':(it.pts-p).toLocaleString()+' pts to go'}</button>
+      </div></div>`;
+  }).join("");
+  const hist = (S.redemptions||[]).map(r=>`<div class="sale-row"><span class="sr-name">🎁 ${esc(r.name)}</span><span class="sr-pts">-${r.pts}</span></div>`).join("");
+  app.innerHTML = `${topbar()}
+  <a class="backlink" href="#/reward">← Rewards Vault</a>
+  <div class="kicker">The Commissary</div>
+  <h1>Exchange Points</h1>
+  <p class="sub">Trade your points for <b style="color:var(--gold)">merch or real Made in Xiaolin product</b> — your shot at being the one with the best at the party. You have <b style="color:var(--gold)">${p.toLocaleString()} pts</b>.</p>
+  <div class="ex-grid">${items}</div>
+  ${hist?`<h3 style="margin:22px 0 6px;font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600">Redeemed</h3><div class="card" style="padding:6px 16px">${hist}</div>`:""}
+  ${foot()}`;
+  window.scrollTo(0,0);
+}
+function doExchange(key){
+  const it = exchangeItems().find(x=>x.key===key); if(!it) return;
+  if (pts() < it.pts) return;
+  if (!confirm(`Redeem ${it.name} for ${it.pts.toLocaleString()} points?`)) return;
+  S.points -= it.pts;
+  S.redemptions = S.redemptions || [];
+  S.redemptions.push({ key, name: it.name, pts: it.pts, date: "2026-06-09" });
+  saveState(S);
+  alert(`Redeemed! ${it.name} is on its way. Your rep will follow up.`);
+  go("#/exchange");
+}
+
+/* ---------- admin panel ---------- */
+function viewAdmin(app){
+  const detail = (location.hash.match(/^#\/admin\/user\/(.+)$/)||[])[1];
+  if (detail) return viewAdminUser(app, decodeURIComponent(detail));
+  const users = Object.values(DB.users);
+  const totalPts = users.reduce((a,u)=>a+(u.points||0),0);
+  const totalSales = users.reduce((a,u)=>a+((u.sales||[]).length),0);
+  const byStore = {};
+  users.forEach(u=>{ (byStore[u.store]=byStore[u.store]||[]).push(u); });
+  const storeOpts = DB.stores.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("");
+  const rows = Object.entries(byStore).map(([store,us])=>`
+    <div class="adm-store">${esc(store)} <span>${us.length} budtender${us.length>1?'s':''}</span></div>
+    ${us.map(u=>`<a class="adm-user" href="#/admin/user/${encodeURIComponent(u.id)}">
+        <div class="au-l"><div class="au-n">${esc(u.name)} ${u.role==='admin'?'<span class="au-admin">ADMIN</span>':''}</div>
+          <div class="au-s">${passedCountFor(u)}/13 sections · ${(u.sales||[]).length} sales${avgScore(u)!=null?' · '+avgScore(u)+'% avg':''}</div></div>
+        <div class="au-p">${(u.points||0).toLocaleString()}<span>pts</span></div>
+      </a>`).join("")}`).join("");
+  app.innerHTML = `<div class="wrap-admin">
+  <div class="topbar"><a class="brand" href="#/dashboard" style="text-decoration:none"><img src="img/xiaolin-logo.png"><div><div class="nm">Made in Xiaolin</div><div class="ac">Admin Panel</div></div></a>
+    <a href="#/dashboard" class="admin-chip">App →</a></div>
+  <h1 style="font-size:2.2rem">Admin Panel</h1>
+  <div class="adm-stats">
+    <div class="adm-stat"><b>${users.length}</b>Users</div>
+    <div class="adm-stat"><b>${DB.stores.length}</b>Stores</div>
+    <div class="adm-stat"><b>${totalSales}</b>Sales</div>
+    <div class="adm-stat"><b>${(totalPts/1000).toFixed(1)}k</b>Points</div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600;margin-bottom:4px">Quick-create a budtender</h3>
+    <div class="field"><label>Name</label><input id="qc_name" placeholder="First & last"></div>
+    <div class="field"><label>Email (optional)</label><input id="qc_email" placeholder="name@store.com"></div>
+    <div class="field"><label>Store</label><select id="qc_store" class="sel">${storeOpts}<option value="__new">+ New store…</option></select></div>
+    <input id="qc_newstore" placeholder="New store name" class="hidden" style="margin-top:8px">
+    <button class="btn gold" onclick="adminQuickCreate()">Create + Get Link / QR</button>
+    <div id="qc_result"></div>
+  </div>
+
+  <h3 style="margin:24px 0 8px;font-family:var(--serif);font-size:1.4rem;color:var(--gold);font-weight:600">All budtenders</h3>
+  ${rows}
+  ${foot()}</div>`;
+  const sel = document.getElementById("qc_store");
+  if (sel) sel.onchange = ()=>{ document.getElementById("qc_newstore").classList.toggle("hidden", sel.value!=="__new"); };
+  window.scrollTo(0,0);
+}
+function passedCountFor(u){ return XIAOLIN.sections.filter(s=>u.passed&&u.passed[s.n]).length; }
+function adminQuickCreate(){
+  const name=(document.getElementById("qc_name").value||"").trim();
+  let store=document.getElementById("qc_store").value;
+  if (store==="__new") store=(document.getElementById("qc_newstore").value||"").trim();
+  const email=(document.getElementById("qc_email").value||"").trim();
+  if(!name||!store){ alert("Name and store required."); return; }
+  if(!DB.stores.find(s=>s.name===store)) DB.stores.push({id:store.toLowerCase().replace(/[^a-z0-9]+/g,"-"),name:store});
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+Object.keys(DB.users).length;
+  DB.users[id]={ id, name, email, store, role:"budtender", joined:true, passed:{}, points:0, code:makeCode(name,store), sales:[], moduleBonus:{}, scores:{}, created:"2026-06-09" };
+  saveDB();
+  const link=acctLink(id);
+  document.getElementById("qc_result").innerHTML=`<div class="qc-out">
+    <div class="qc-h">✓ ${esc(name)} created · ${esc(store)}</div>
+    <img class="qc-qr" src="${qrUrl(link)}" alt="QR">
+    <div class="qc-link" onclick="navigator.clipboard&&navigator.clipboard.writeText('${link}')">${esc(link)}</div>
+    <div class="qc-hint">Tap the link to copy. Text or scan the QR to hand them their account.</div>
+  </div>`;
+}
+function viewAdminUser(app, id){
+  const u = DB.users[id]; if(!u) return go("#/admin");
+  const sales=(u.sales||[]).map(sl=>`<div class="sale-row">
+    ${sl.receipt?`<img class="rcpt-thumb" src="${sl.receipt}" onclick="showImg('${sl.receipt}')">`:`<span style="width:34px;text-align:center">🧾</span>`}
+    <span class="sr-name">${esc(sl.product)}</span><span class="sr-pts">+${sl.earned||0}</span><span class="sr-amt">$${esc(sl.amount)}</span></div>`).join("")||`<p class="sub">No sales logged yet.</p>`;
+  const link=acctLink(u.id);
+  app.innerHTML=`<div class="wrap-admin">
+  <div class="topbar"><a class="brand" href="#/admin" style="text-decoration:none"><img src="img/xiaolin-logo.png"><div><div class="nm">Made in Xiaolin</div><div class="ac">Admin · User</div></div></a><a href="#/admin" class="admin-chip">← All</a></div>
+  <div class="kicker">${esc(u.store)}</div>
+  <h1 style="font-size:2.2rem">${esc(u.name)} ${u.role==='admin'?'<span class="au-admin">ADMIN</span>':''}</h1>
+  ${u.email?`<p class="sub">${esc(u.email)}</p>`:""}
+  <div class="adm-stats">
+    <div class="adm-stat"><b>${(u.points||0).toLocaleString()}</b>Points</div>
+    <div class="adm-stat"><b>${passedCountFor(u)}/13</b>Sections</div>
+    <div class="adm-stat"><b>${(u.sales||[]).length}</b>Sales</div>
+    <div class="adm-stat"><b>${avgScore(u)!=null?avgScore(u)+'%':'—'}</b>Avg score</div>
+  </div>
+  <div class="card">
+    <h3 style="font-family:var(--serif);font-size:1.2rem;color:var(--gold);font-weight:600;margin-bottom:6px">Adjust points</h3>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input id="adm_pts" type="number" placeholder="e.g. 100" style="flex:1">
+      <button class="btn gold" style="margin:0;width:auto;padding:14px 18px" onclick="adminAddPoints('${u.id}')">Add</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn ghost" style="margin:0" onclick="adminAddPoints('${u.id}',-100)">−100</button>
+      <button class="btn ghost" style="margin:0" onclick="adminAddPoints('${u.id}',255)">+255 (Godfather)</button>
+    </div>
+  </div>
+  <h3 style="margin:20px 0 6px;font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600">Sales & receipts</h3>
+  <div class="card" style="padding:6px 16px">${sales}</div>
+  <div class="card" style="text-align:center">
+    <div class="qc-h" style="margin-bottom:8px">Account link / QR</div>
+    <img class="qc-qr" src="${qrUrl(link)}" alt="QR">
+    <div class="qc-link" onclick="navigator.clipboard&&navigator.clipboard.writeText('${link}')">${esc(link)}</div>
+  </div>
+  <a class="btn ghost" href="?u=${u.id}#/dashboard">Open ${esc(u.name.split(' ')[0])}'s account →</a>
+  ${foot()}</div>`;
+  window.scrollTo(0,0);
+}
+function adminAddPoints(id, fixed){
+  const u=DB.users[id]; if(!u) return;
+  let n = fixed!==undefined ? fixed : parseInt(document.getElementById("adm_pts").value,10);
+  if(!n||isNaN(n)){ return; }
+  u.points = Math.max(0,(u.points||0)+n);
+  saveDB(); if (S && S.id===id) S=u;
+  render();
 }
 
 /* ---------- rewards vault ---------- */
@@ -548,11 +707,13 @@ function viewReward(app){
   <h1>Earn the Gear</h1>
   <p class="sub">Earn points per verified sale (Godfather 255 · Capo 130 · Goomah 70 · Bambino 20) + your 3 modules. Climb to your code, your Xiaolin × ${esc(S.store)} merch, and a seat on the High Council at 1,000.</p>
   ${pointsHero()}
+  ${avgScore()!=null?`<div class="cert-score"><span>Certification score</span><b>${avgScore()}%</b></div>`:""}
   ${codeBlock}
   ${merchLadder(false)}
   ${council}
   ${commissaryPanel()}
-  <a class="btn gold" href="#/sale">📷 Log a Sale (earn points) →</a>
+  <a class="btn gold" href="#/exchange">🎁 Exchange Points (merch or product) →</a>
+  <a class="btn ghost" href="#/sale">📷 Log a Sale (earn points)</a>
   <a class="btn ghost" href="#/lineup">Brush Up on the Lineup</a>
   ${foot()}`;
   window.scrollTo(0,0);
@@ -569,7 +730,7 @@ function commissaryPanel(){
       <div class="comm-p">${r.pts.toLocaleString()} pts${got?' · redeemable ✓':''}</div>
     </div>`;
   }).join("");
-  return `<div class="vault-head"><h3>The Commissary</h3><span class="vault-link">Merch or product</span></div>
+  return `<div class="vault-head"><h3>The Commissary</h3><a class="vault-link" href="#/exchange">Exchange →</a></div>
   <p class="sub" style="margin:-4px 0 10px">Exchange your points for merch <b style="color:var(--gold)">or real Made in Xiaolin cannabis</b> — your shot at being the one who pulls out the best at the party. Points never expire.</p>
   <div class="card" style="padding:8px 16px">${rows}</div>
   <p class="sub" style="text-align:center;font-size:.72rem">Plus: ${esc(c.future.join(" · "))}</p>`;
@@ -579,12 +740,16 @@ function commissaryPanel(){
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function resetProgress(){ if(confirm("Reset all progress on this device?")){ localStorage.removeItem(LS); S=null; go("#/"); render(); } }
 
-// Test-account deep link: ?n=Chris+Louie&s=Xiaolin+Dispensary creates the account.
+// Deep links: ?u=<id> opens an existing account · ?admin=<code> grants admin ·
+// ?n=&s= creates a new account.
 function initFromLink(){
   const q = new URLSearchParams(location.search);
+  if (q.get("admin") === ADMIN_CODE){ localStorage.setItem(ADMIN_KEY, "1"); }
+  const u = (q.get("u")||"").trim();
+  if (u && DB.users[u]){ setCurrent(u); if (!location.hash || location.hash === "#/") location.hash = "#/dashboard"; return; }
   const n = (q.get("n")||"").trim(), st = (q.get("s")||"").trim();
   if (n && st && (!S || !S.joined)){
-    S = freshState(n, st); saveState(S);
+    const nu = freshState(n, st); DB.users[nu.id] = nu; setCurrent(nu.id); saveState(nu);
     if (!location.hash || location.hash === "#/") location.hash = "#/dashboard";
   }
 }
