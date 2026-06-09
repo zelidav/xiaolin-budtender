@@ -32,7 +32,7 @@ function codeUnlocked(){ return pts() >= (XIAOLIN.tiers.find(t=>t.key==="code")|
 function nextTier(){ return XIAOLIN.tiers.find(t => pts() < t.pts) || null; }
 
 /* ---------- training modules ---------- */
-function moduleSecs(id){ return XIAOLIN.sections.filter(s => s.module === id); }
+function moduleSecs(id){ return XIAOLIN.sections.filter(s => s.module === id && !s.capstone); }
 function moduleDone(id){ return moduleSecs(id).every(s => S && S.passed[s.n]); }
 function moduleOf(n){ const s = XIAOLIN.sections.find(x=>x.n===n); return s ? s.module : null; }
 // Award any newly-completed module's bonus (once each). Returns the module just completed, if any.
@@ -140,7 +140,7 @@ function pointsHero(){
     <div class="ph-bar"><div class="ph-fill" style="width:${pctToCouncil}%"></div>
       <span class="ph-cap" style="left:10%">100</span><span class="ph-cap" style="left:40%">400</span>
       <span class="ph-cap" style="left:70%">700</span><span class="ph-cap end">1000 👑</span></div>
-    <div class="ph-rule">Points per sale — Godfather <b>255</b> · Capo <b>130</b> · Goomah <b>70</b> · Bambino <b>20</b> · modules <b>50/75/125</b></div>
+    <div class="ph-rule">Points per sale — Godfather <b>255</b> · Capo <b>130</b> · Goomah <b>70</b> · Bambino <b>20</b> · modules <b>50/75/125/150</b></div>
   </div>`;
 }
 function merchLadder(compact){
@@ -176,7 +176,7 @@ function viewDashboard(app){
   ${!complete?`<div class="card" style="margin-top:14px">
     <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Training · 3 modules → High Council</h3>
     <div class="prog-outer" style="margin-top:8px"><div class="prog-inner" style="width:${Math.round(done/total*100)}%"></div></div>
-    <div class="prog-label">${done} of ${total} sections passed — modules pay <b style="color:var(--gold)">50 / 75 / 125 pts</b></div>
+    <div class="prog-label">${done} of ${total} sections passed — modules pay <b style="color:var(--gold)">50 / 75 / 125 / 150 pts</b></div>
   </div>`:""}
   ${codeBlock}
   <a class="btn ${complete?'ghost':''}" href="#/training">${complete?'Review Training':'Continue Training →'}</a>
@@ -569,10 +569,10 @@ function commissaryPanel(){
       <div class="comm-p">${r.pts.toLocaleString()} pts${got?' · redeemable ✓':''}</div>
     </div>`;
   }).join("");
-  return `<div class="vault-head"><h3>The Commissary</h3><span class="vault-link">Redeem for product</span></div>
-  <p class="sub" style="margin:-4px 0 10px">Once you're a High Council member, cash points for real Xiaolin product. Points never expire.</p>
+  return `<div class="vault-head"><h3>The Commissary</h3><span class="vault-link">Merch or product</span></div>
+  <p class="sub" style="margin:-4px 0 10px">Exchange your points for merch <b style="color:var(--gold)">or real Made in Xiaolin cannabis</b> — your shot at being the one who pulls out the best at the party. Points never expire.</p>
   <div class="card" style="padding:8px 16px">${rows}</div>
-  <p class="sub" style="text-align:center;font-size:.72rem">Future: ${esc(c.future.join(" · "))}</p>`;
+  <p class="sub" style="text-align:center;font-size:.72rem">Plus: ${esc(c.future.join(" · "))}</p>`;
 }
 
 /* ---------- util ---------- */
