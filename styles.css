@@ -94,6 +94,20 @@ input::placeholder{color:#6f6354}
 .prog-inner{background:linear-gradient(90deg,var(--gold),var(--red));height:100%;width:0;transition:width .5s;border-radius:8px}
 .prog-label{font-size:.72rem;color:var(--mute);font-weight:600;letter-spacing:.04em}
 
+/* training modules */
+.mod-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line-soft)}
+.mod-head .mod-lvl{display:inline-block;font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;font-weight:800;
+  color:#241400;background:var(--gold);padding:3px 8px;border-radius:100px;margin-right:9px;vertical-align:middle}
+.mod-head .mod-ttl{font-family:var(--serif);font-size:1.35rem;color:var(--ink);font-weight:600}
+.mod-head .mod-bonus{flex-shrink:0;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--gold-deep);white-space:nowrap}
+.mod-head.done .mod-bonus{color:var(--good)}
+.mod-head.done .mod-lvl{background:var(--good);color:#fff}
+.mod-head.capstone .mod-lvl{background:linear-gradient(180deg,#fbe08f,#caa12f);color:#241400}
+.mod-head.capstone .mod-ttl{color:var(--gold)}
+.sect-card.council-card{background:radial-gradient(120% 120% at 50% 0%, #1c0a08, #100a08 75%);border-color:var(--gold-soft)}
+.sect-card.council-card .st{color:var(--gold)}
+.sect-card.council-card.locked{opacity:.6}
+
 /* section grid */
 .sect-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
 .sect-card{display:block;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--card-line);

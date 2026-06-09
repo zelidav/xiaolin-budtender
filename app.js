@@ -7,10 +7,11 @@ function loadState(){
 }
 function saveState(s){ localStorage.setItem(LS, JSON.stringify(s)); }
 function freshState(name, store){
-  return { name, store, joined: true, passed: {}, points: 0, code: null, sales: [], trainBonus: false };
+  return { name, store, joined: true, passed: {}, points: 0, code: null, sales: [], moduleBonus: {} };
 }
 let S = loadState();
-if (S && !Array.isArray(S.sales)) S.sales = [];   // migrate older saves
+if (S && !Array.isArray(S.sales)) S.sales = [];          // migrate older saves
+if (S && !S.moduleBonus) S.moduleBonus = {};
 
 // Deterministic per-roller code (no Date/random needed for MVP).
 function makeCode(name, store){
@@ -23,17 +24,28 @@ function allPassed(){ return XIAOLIN.sections.every(s => S && S.passed[s.n]); }
 function passedCount(){ return XIAOLIN.sections.filter(s => S && S.passed[s.n]).length; }
 function saleCount(){ return S && S.sales ? S.sales.length : 0; }
 function pts(){ return S ? S.points : 0; }
-// Points economy: 100 for finishing training, 1 pt per $ sold. 1000 → High Council.
+// Points economy: modules pay 50/75/125 (250 total), 1 pt per $ sold, 1000 → High Council.
 const COUNCIL_PTS = () => XIAOLIN.rewards.councilPts;
 function tierUnlocked(tier){ return pts() >= tier.pts; }
 function councilUnlocked(){ return pts() >= COUNCIL_PTS(); }
-function codeUnlocked(){ return allPassed(); }   // training done = 100 pts = code
-// Award the one-time training-completion bonus when all sections are passed.
-function awardTrainingBonus(){
-  if (S && allPassed() && !S.trainBonus){ S.trainBonus = true; S.points += XIAOLIN.rewards.trainingBonus; saveState(S); return true; }
-  return false;
-}
+function codeUnlocked(){ return pts() >= (XIAOLIN.tiers.find(t=>t.key==="code")||{pts:100}).pts; }
 function nextTier(){ return XIAOLIN.tiers.find(t => pts() < t.pts) || null; }
+
+/* ---------- training modules ---------- */
+function moduleSecs(id){ return XIAOLIN.sections.filter(s => s.module === id); }
+function moduleDone(id){ return moduleSecs(id).every(s => S && S.passed[s.n]); }
+function moduleOf(n){ const s = XIAOLIN.sections.find(x=>x.n===n); return s ? s.module : null; }
+// Award any newly-completed module's bonus (once each). Returns the module just completed, if any.
+function awardModuleBonus(){
+  let justDone = null;
+  XIAOLIN.modules.forEach(m => {
+    if (moduleDone(m.id) && !S.moduleBonus[m.id]){
+      S.moduleBonus[m.id] = true; S.points += m.bonus; justDone = m;
+    }
+  });
+  if (justDone) saveState(S);
+  return justDone;
+}
 
 /* ---------- tiny hash router ---------- */
 function go(hash){ location.hash = hash; }
@@ -89,7 +101,7 @@ function viewCover(app){
         <div class="es-item"><div class="es-pic"><img src="img/merch/hat-red.png" alt="hat"></div><div class="es-c">Trucker Hat</div><div class="es-p">700 pts</div></div>
         <div class="es-item"><div class="es-pic"><img src="img/medallion.jpg" alt="council"></div><div class="es-c">High Council</div><div class="es-p">1000 pts</div></div>
       </div>
-      <div class="es-rule">Earn <b>1 pt / $1</b> sold · <b>+100</b> for finishing training</div>
+      <div class="es-rule">Earn <b>1 pt / $1</b> sold · 3 modules pay <b>+250</b></div>
     </div>
   </div>
   <div class="card">
@@ -128,7 +140,7 @@ function pointsHero(){
     <div class="ph-bar"><div class="ph-fill" style="width:${pctToCouncil}%"></div>
       <span class="ph-cap" style="left:10%">100</span><span class="ph-cap" style="left:40%">400</span>
       <span class="ph-cap" style="left:70%">700</span><span class="ph-cap end">1000 👑</span></div>
-    <div class="ph-rule">Earn <b>1 pt per $1</b> you sell · <b>+100</b> for finishing training</div>
+    <div class="ph-rule">Earn <b>1 pt per $1</b> you sell · modules pay <b>50 / 75 / 125</b></div>
   </div>`;
 }
 function merchLadder(compact){
@@ -156,15 +168,15 @@ function viewDashboard(app){
   if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
   const codeBlock = codeUnlocked()
     ? `<div class="codechip"><div class="l">Your Budtender Code · ${XIAOLIN.rewards.discountPct}% Off</div><div class="c">${S.code}</div></div>`
-    : `<div class="codechip locked"><div class="l">50% Code — Locked</div><div class="c">Finish training (+100 pts) to unlock</div></div>`;
+    : `<div class="codechip locked"><div class="l">50% Code — Locked</div><div class="c">Reach 100 pts (the modules get you there)</div></div>`;
   app.innerHTML = `${topbar()}
   <div class="kicker">Welcome, ${esc(S.name.split(" ")[0])}</div>
   <h1 style="font-size:2.4rem">${esc(S.store)}</h1>
   ${pointsHero()}
   ${!complete?`<div class="card" style="margin-top:14px">
-    <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Step 1 · Get certified</h3>
+    <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Training · 3 modules → High Council</h3>
     <div class="prog-outer" style="margin-top:8px"><div class="prog-inner" style="width:${Math.round(done/total*100)}%"></div></div>
-    <div class="prog-label">${done} of ${total} sections passed — finish for <b style="color:var(--gold)">+100 pts</b></div>
+    <div class="prog-label">${done} of ${total} sections passed — modules pay <b style="color:var(--gold)">50 / 75 / 125 pts</b></div>
   </div>`:""}
   ${codeBlock}
   <a class="btn ${complete?'ghost':''}" href="#/training">${complete?'Review Training':'Continue Training →'}</a>
@@ -182,29 +194,51 @@ function viewDashboard(app){
 /* ---------- training hub ---------- */
 function viewTrainingHub(app){
   const done = passedCount(), total = XIAOLIN.sections.length;
-  const cards = XIAOLIN.sections.map((s,i) => {
+  const order = XIAOLIN.sections;   // ordered by n
+  const card = (s) => {
+    const i = order.findIndex(x=>x.n===s.n);
     const passed = S.passed[s.n];
-    const locked = i>0 && !S.passed[XIAOLIN.sections[i-1].n] && !passed;
+    const locked = i>0 && !S.passed[order[i-1].n] && !passed;
     const cls = passed ? "passed" : (locked ? "locked" : "");
     return `<a class="sect-card ${cls}" href="${locked?'#/training':'#/training/'+s.n}">
       <span class="badge">${passed?'✓':(locked?'🔒':'›')}</span>
-      <div class="sn">Section ${s.n}</div>
-      <div class="st">${s.title}</div>
-      <div class="sd">${s.tag}</div>
+      <div class="sn">${esc(s.tag)}</div>
+      <div class="st">${esc(s.title)}</div>
     </a>`;
+  };
+  // module blocks
+  const modBlocks = XIAOLIN.modules.map(m => {
+    const secs = moduleSecs(m.id);
+    const mdone = moduleDone(m.id);
+    const got = S.moduleBonus[m.id];
+    return `<div class="mod-head ${mdone?'done':''}">
+      <div><span class="mod-lvl">${esc(m.level)}</span><span class="mod-ttl">${esc(m.title)}</span></div>
+      <div class="mod-bonus">${got?'✓ +'+m.bonus:'+'+m.bonus+' pts'}</div>
+    </div>
+    <div class="sect-grid">${secs.map(card).join("")}</div>`;
   }).join("");
+  // capstone
+  const cap = XIAOLIN.sections.find(s=>s.capstone);
+  const modsDone = XIAOLIN.modules.every(m=>moduleDone(m.id));
+  const capPassed = S.passed[cap.n];
+  const capLocked = !modsDone && !capPassed;
+  const capBlock = `<div class="mod-head capstone"><div><span class="mod-lvl">Capstone</span><span class="mod-ttl">The High Council</span></div><div class="mod-bonus">${councilUnlocked()?'👑 Open':'1,000 pts'}</div></div>
+    <a class="sect-card council-card ${capPassed?'passed':''} ${capLocked?'locked':''}" href="${capLocked?'#/training':'#/training/'+cap.n}">
+      <span class="badge">${capPassed?'✓':(capLocked?'🔒':'👑')}</span>
+      <div class="sn">${capLocked?'Finish all 3 modules first':'Capstone'}</div>
+      <div class="st">${esc(cap.title)}</div>
+    </a>`;
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <h1>Training</h1>
-  <p class="sub">${total} sections · ~2 min each · pass each quiz at 80% to unlock the next. ${done}/${total} done.</p>
+  <p class="sub">Three modules — Basic → Medium → Advanced — then the High Council. Pass each quiz at 80%. ${done}/${total} done. Each module pays points into your total.</p>
   <a href="${XIAOLIN.highCouncil.movieUrl}" target="_blank" rel="noopener" class="movie-cta">
     ▶ Watch the official Retail Sales Training Movie
-    <span>Straight from the studio · ~optional but recommended</span>
+    <span>Straight from the studio · recommended before you start</span>
   </a>
-  <div class="sect-grid">${cards}</div>
-  ${allPassed()
-      ? `<a class="btn gold" href="#/sale">Certified! Log a sale to climb to 1,000 →</a>`
-      : ""}
+  ${modBlocks}
+  ${capBlock}
+  ${modsDone ? `<a class="btn gold" href="#/sale" style="margin-top:16px">Modules done! Log a sale to climb to 1,000 →</a>` : ""}
   ${foot()}`;
 }
 
@@ -213,15 +247,17 @@ function viewSection(app, n){
   const s = XIAOLIN.sections.find(x=>x.n===n);
   if (!s) return go("#/training");
   const body = s.body.map(p=>`<p>${p}</p>`).join("");
+  const mod = XIAOLIN.modules.find(m=>m.id===s.module);
+  const lvl = s.capstone ? "Capstone" : (mod ? mod.level + " · " + mod.title : "");
   app.innerHTML = `${topbar()}
-  <a class="backlink" href="#/training">← All sections</a>
-  <div class="kicker">Section ${s.n} · ${s.tag}</div>
+  <a class="backlink" href="#/training">← All modules</a>
+  <div class="kicker">${esc(lvl)}${s.tag?' · '+esc(s.tag):''}</div>
   <h1>${s.title}</h1>
   <div class="reader">
     <img class="reader-hero" src="${s.hero}" alt="${s.title}">
     ${body}
   </div>
-  <a class="btn" href="#/training/${s.n}/quiz">${S.passed[s.n]?'Retake':'Take'} the Section ${s.n} Quiz →</a>
+  <a class="btn" href="#/training/${s.n}/quiz">${S.passed[s.n]?'Retake':'Take'} the ${esc(s.title)} Quiz →</a>
   ${foot()}`;
   window.scrollTo(0,0);
 }
@@ -239,8 +275,8 @@ function viewQuiz(app, n){
     return `<div class="qcard" data-card="${qi}"><div class="qprompt">${qi+1}. ${esc(q.q)}</div>${opts}<div class="qexplain hidden" data-exp="${qi}"></div></div>`;
   }).join("");
   app.innerHTML = `${topbar()}
-  <a class="backlink" href="#/training/${n}">← Re-read Section ${n}</a>
-  <div class="kicker">Section ${n} Quiz</div>
+  <a class="backlink" href="#/training/${n}">← Re-read ${esc(s.title)}</a>
+  <div class="kicker">${esc(s.title)} · Quiz</div>
   <h1>${s.title}</h1>
   <p class="sub">${qs.length} questions · 80% to pass${S.passed[n]?' · already passed ✓':''}</p>
   <div id="scoreSlot"></div>
@@ -280,18 +316,23 @@ function gradeQuiz(n){
   const passed = correct/qs.length >= PASS;
   const slot = document.getElementById("scoreSlot");
   if (passed && !S.passed[n]){ S.passed[n] = true; saveState(S); }
-  const justCertified = passed && allPassed();
-  if (justCertified) awardTrainingBonus();   // one-time +100 on completion
+  const sec = XIAOLIN.sections.find(x=>x.n===n);
+  const moduleJustDone = passed ? awardModuleBonus() : null;   // awards module bonus if completed
   let msg, cta;
   if (!passed){
     msg = "You need 80% to pass. Re-read the section and try again — answers are explained below.";
-    cta = `<a class="btn" href="#/training/${n}">Re-read Section ${n}</a>`;
-  } else if (justCertified){
-    msg = `Certified Xiaolin Roller — <b>+${XIAOLIN.rewards.trainingBonus} points</b> and your 50% code is unlocked. Now every $1 you sell = 1 point. Climb to <b>1,000</b> and the High Council opens.`;
+    cta = `<a class="btn" href="#/training/${n}">Re-read this section</a>`;
+  } else if (sec && sec.capstone){
+    msg = councilUnlocked()
+      ? "You know all of Xiaolin — and you've hit 1,000 points. The High Council is open."
+      : `You know all of Xiaolin. Reach <b>1,000 pts</b> (${(COUNCIL_PTS()-pts()).toLocaleString()} to go) and your High Council invitation unlocks.`;
     cta = `<a class="btn gold" href="#/reward">Open the Rewards Vault →</a>`;
+  } else if (moduleJustDone){
+    msg = `<b>${esc(moduleJustDone.level)} module complete</b> — “${esc(moduleJustDone.title)}.” <b>+${moduleJustDone.bonus} points!</b>`;
+    cta = `<a class="btn gold" href="#/training">Continue to the Next Module →</a>`;
   } else {
-    msg = "Section passed. Next section unlocked — finish all 7 for +100 points.";
-    cta = `<a class="btn" href="#/training">Continue to Next Section →</a>`;
+    msg = "Section passed. Next section unlocked.";
+    cta = `<a class="btn" href="#/training">Continue →</a>`;
   }
   slot.innerHTML = `<div class="score ${passed?'pass':'fail'}">
     <div class="pct">${pct}%</div>
