@@ -136,6 +136,7 @@ input::placeholder{color:#6f6354}
 .prod-row .pspecs{font-family:var(--sc);font-size:.72rem;color:var(--gold-deep);font-weight:500;margin:2px 0 3px;letter-spacing:.01em}
 .prod-row .pprice{flex-shrink:0;align-self:flex-start;font-family:var(--serif);font-weight:600;font-size:1.25rem;color:var(--gold);margin-left:6px;white-space:nowrap}
 .prod-row .pprice.none{font-size:.7rem;color:var(--dim);font-weight:600;font-family:var(--sans);letter-spacing:.04em;align-self:center}
+.prod-row .pprice .pearn{display:block;font-family:var(--sans);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--good);font-weight:800;margin-top:2px;text-align:right}
 .prod-row .pb{font-size:.78rem;color:var(--mute);line-height:1.4}
 
 /* official spec sheet */
@@ -251,6 +252,15 @@ input::placeholder{color:#6f6354}
 .ml-t{font-family:var(--serif);font-size:1.2rem;color:var(--ink);font-weight:600;line-height:1.05}
 .ml-co{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;margin-top:3px}
 .ml-d{font-size:.78rem;color:var(--mute);line-height:1.4;margin-top:5px}
+
+/* commissary redemption rows */
+.comm-row{display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.comm-row:last-child{border-bottom:0}
+.comm-row img{width:46px;height:46px;object-fit:contain;flex-shrink:0}
+.comm-row.got img{filter:drop-shadow(0 0 8px rgba(245,206,80,.4))}
+.comm-row .comm-n{flex:1;font-family:var(--serif);font-size:1.1rem;color:var(--ink);font-weight:600}
+.comm-row .comm-p{font-family:var(--sc);font-size:.82rem;color:var(--gold-deep);font-weight:600;white-space:nowrap}
+.comm-row.got .comm-p{color:var(--good)}
 
 /* locked council */
 .council.locked{filter:saturate(.9)}

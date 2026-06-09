@@ -271,9 +271,10 @@ const XIAOLIN = {
       tag: "The ultimate prize", hero: "img/medallion.jpg",
       body: [
         "Finish all three modules and one door opens: <strong>The High Council</strong> — Xiaolin's official program to <strong>honor and reward sales associates with expert knowledge</strong> of the brand. Everything you need to pass the application is in this academy.",
-        "<strong>Reward points.</strong> Council members earn <strong>points for every Xiaolin product they sell</strong> — cashed in for Xiaolin products and merch. (That's exactly the platform you're climbing here: <strong>1 point per $1 sold</strong>.)",
-        "<strong>Exclusive access.</strong> High Council members get access to Council-only <strong>events and programs</strong>, plus <strong>limited merch not available to the public.</strong> It's the bridge from budtender to <strong>brand ambassador</strong>.",
-        "<strong>Your path:</strong> earn <strong>1,000 points</strong> — finish the three modules (worth 250) and sell (1 pt per $1) — and your invitation to <strong>apply</strong> unlocks, straight to Xiaolin's real form, info packet, and training movie.",
+        "<strong>The Commissary</strong> is the Council's real rewards program. Members earn points for every <strong>verified sale</strong> — <strong>Godfather 255 · Capo 130 · Goomah 70 · Soldato 45 · Bambino 20</strong> — plus points for training. Points <strong>never expire</strong>.",
+        "<strong>Redeem for product.</strong> Cash points in the Commissary: Bambino <strong>800</strong>, Goomah <strong>2,800</strong>, Capo <strong>5,000</strong>, Godfather <strong>9,500</strong> — plus future Dragon Tips, apparel, and exclusive experiences. Submit proof of sale (your receipt), get approved, redeem.",
+        "<strong>Exclusive access.</strong> High Council members get Council-only <strong>events, workshops, and programs</strong>, plus <strong>limited merch not available to the public.</strong> It's the bridge from budtender to <strong>brand ambassador</strong>.",
+        "<strong>Your path here:</strong> earn <strong>1,000 points</strong> — finish the three modules (+250) and log verified sales — and your invitation to <strong>apply</strong> unlocks, straight to Xiaolin's real form, info packet, and training movie.",
         "Apply when you have a solid understanding of all things Xiaolin. <strong>Welcome to the family — Rolled Proper.</strong>",
       ],
       quiz: [
@@ -300,13 +301,29 @@ const XIAOLIN = {
     movieUrl: "https://drive.google.com/file/d/1bMuSECJGKJkJWaKV3uXGfzXUtuArlTKq/view?usp=drivesdk",
   },
 
-  // Points economy.
+  // Points economy — calibrated to the real High Council Commissary program.
   rewards: {
     discountPct: 50,
     discountCodeStem: "XIAOLIN-ROLLER-",
     giveaway: "Monthly VSXL cannagar draw",
-    perDollar: 1,        // pts per $ sold
-    councilPts: 1000,    // pts to reach the High Council
+    councilPts: 1000,    // pts to unlock the High Council application (the audition)
+  },
+
+  // The High Council Commissary — Xiaolin's real rewards program (from the
+  // official Commissary docs). Earn points per VERIFIED sale; redeem for product.
+  // Points never expire. Module bonuses here count as "training participation."
+  commissary: {
+    earn: {   // points per product sold (Commissary "Points Earned")
+      GODFATHER: 255, CAPO: 130, GOOMAH: 70, SOLDATO: 45, BAMBINO: 20,
+    },
+    trainingAttendance: 25,
+    redeem: [  // Commissary catalog — "Earn Your Keep" (Points Required)
+      { sku: "BAMBINO",   name: "Bambino Twin Pack", pts: 800,  img: "img/joints/Bambino_RedTip.png" },
+      { sku: "GOOMAH",    name: "Goomah VSXL",       pts: 2800, img: "img/cannagars/goomah.png" },
+      { sku: "CAPO",      name: "Capo VSXL",         pts: 5000, img: "img/cannagars/capo.png" },
+      { sku: "GODFATHER", name: "Godfather VSXL",    pts: 9500, img: "img/cannagars/godfather.png" },
+    ],
+    future: ["Dragon Tips", "Xiaolin apparel", "Exclusive merch", "Limited accessories", "Event invitations", "Special experiences"],
   },
 
   // The Rewards Vault ladder — co-branded Xiaolin × the budtender's store.

@@ -101,7 +101,7 @@ function viewCover(app){
         <div class="es-item"><div class="es-pic"><img src="img/merch/hat-red.png" alt="hat"></div><div class="es-c">Trucker Hat</div><div class="es-p">700 pts</div></div>
         <div class="es-item"><div class="es-pic"><img src="img/medallion.jpg" alt="council"></div><div class="es-c">High Council</div><div class="es-p">1000 pts</div></div>
       </div>
-      <div class="es-rule">Earn <b>1 pt / $1</b> sold · 3 modules pay <b>+250</b></div>
+      <div class="es-rule">Earn points per sale (up to <b>255</b>) · 3 modules pay <b>+250</b></div>
     </div>
   </div>
   <div class="card">
@@ -140,7 +140,7 @@ function pointsHero(){
     <div class="ph-bar"><div class="ph-fill" style="width:${pctToCouncil}%"></div>
       <span class="ph-cap" style="left:10%">100</span><span class="ph-cap" style="left:40%">400</span>
       <span class="ph-cap" style="left:70%">700</span><span class="ph-cap end">1000 👑</span></div>
-    <div class="ph-rule">Earn <b>1 pt per $1</b> you sell · modules pay <b>50 / 75 / 125</b></div>
+    <div class="ph-rule">Points per sale — Godfather <b>255</b> · Capo <b>130</b> · Goomah <b>70</b> · Bambino <b>20</b> · modules <b>50/75/125</b></div>
   </div>`;
 }
 function merchLadder(compact){
@@ -350,8 +350,9 @@ function gradeQuiz(n){
 /* ---------- lineup ---------- */
 function viewLineup(app){
   const rows = XIAOLIN.products.map(p=>{
+    const ep = XIAOLIN.commissary.earn[p.sku];
     const specs = [p.flower, p.conc, p.burn].filter(Boolean).join(" · ");
-    const price = p.price ? `<div class="pprice">${esc(p.price)}</div>`
+    const price = p.price ? `<div class="pprice">${esc(p.price)}${ep?`<span class="pearn">+${ep} pts</span>`:""}</div>`
       : (p.sku==="KNIFE" ? "" : `<div class="pprice none">varies</div>`);
     return `<div class="prod-row">
       <img src="${p.img}" alt="${p.name}">
@@ -500,14 +501,16 @@ function logSale(){
   // Validation gate: if OCR couldn't verify the brand, make the budtender confirm.
   if (window._verified === false &&
       !confirm("This receipt didn't scan as a Made in Xiaolin sale. Log it anyway?")) return;
-  const earned = Math.round(amt * XIAOLIN.rewards.perDollar);   // 1 pt per $ sold
+  // Commissary points are per-product (real program values), not per dollar.
+  const earned = (XIAOLIN.commissary.earn[sku]) || Math.max(1, Math.round(amt / 3));
+  const wasUnder = !councilUnlocked();
   S.sales.push({ product: prod, sku, amount: amt.toFixed(2), verified: window._verified === true, earned });
   S.points += earned;
   saveState(S);
   if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
   const reached = councilUnlocked();
-  alert(`Sale logged — +${earned} points!` + (reached ? "  You've hit 1,000 — the High Council is open." :
-        (allPassed() ? "" : "  Finish training for +100 and your code.")));
+  alert(`Sale logged — +${earned} points (${esc(prod)})!` + (reached && wasUnder ? "  You've hit 1,000 — the High Council is open." :
+        (allPassed() ? "" : "  Finish the modules for bonus points + your code.")));
   go(reached ? "#/reward" : "#/dashboard");
 }
 
@@ -543,15 +546,33 @@ function viewReward(app){
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <div class="kicker">Rewards Vault</div>
   <h1>Earn the Gear</h1>
-  <p class="sub">Every $1 you sell = 1 point. Climb the ladder — your code, your Xiaolin × ${esc(S.store)} merch, then a seat on the High Council at 1,000.</p>
+  <p class="sub">Earn points per verified sale (Godfather 255 · Capo 130 · Goomah 70 · Bambino 20) + your 3 modules. Climb to your code, your Xiaolin × ${esc(S.store)} merch, and a seat on the High Council at 1,000.</p>
   ${pointsHero()}
   ${codeBlock}
   ${merchLadder(false)}
   ${council}
-  <a class="btn gold" href="#/sale">📷 Log a Sale (1 pt / $) →</a>
+  ${commissaryPanel()}
+  <a class="btn gold" href="#/sale">📷 Log a Sale (earn points) →</a>
   <a class="btn ghost" href="#/lineup">Brush Up on the Lineup</a>
   ${foot()}`;
   window.scrollTo(0,0);
+}
+
+// The real High Council Commissary — redeem points for product.
+function commissaryPanel(){
+  const c = XIAOLIN.commissary;
+  const rows = c.redeem.map(r=>{
+    const got = pts() >= r.pts;
+    return `<div class="comm-row ${got?'got':''}">
+      <img src="${r.img}" alt="${esc(r.name)}">
+      <div class="comm-n">${esc(r.name)}</div>
+      <div class="comm-p">${r.pts.toLocaleString()} pts${got?' · redeemable ✓':''}</div>
+    </div>`;
+  }).join("");
+  return `<div class="vault-head"><h3>The Commissary</h3><span class="vault-link">Redeem for product</span></div>
+  <p class="sub" style="margin:-4px 0 10px">Once you're a High Council member, cash points for real Xiaolin product. Points never expire.</p>
+  <div class="card" style="padding:8px 16px">${rows}</div>
+  <p class="sub" style="text-align:center;font-size:.72rem">Future: ${esc(c.future.join(" · "))}</p>`;
 }
 
 /* ---------- util ---------- */
