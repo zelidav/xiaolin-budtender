@@ -253,6 +253,20 @@ input::placeholder{color:#6f6354}
 .ml-co{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;margin-top:3px}
 .ml-d{font-size:.78rem;color:var(--mute);line-height:1.4;margin-top:5px}
 
+/* admin App Expert card */
+.expert-card{display:flex;align-items:center;gap:13px;cursor:pointer;margin:14px 0;padding:16px 16px;border-radius:10px;
+  background:radial-gradient(120% 120% at 50% 0%,#2a0f0c,#15110e);border:1px solid var(--gold-soft);
+  box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.expert-card:active{transform:scale(.99)}
+.expert-card .ex-ico{font-size:1.9rem;flex-shrink:0}
+.expert-card .ex-h{font-family:var(--serif);font-size:1.25rem;color:var(--gold);font-weight:600;line-height:1}
+.expert-card .ex-d{font-size:.76rem;color:var(--ink-soft);line-height:1.4;margin-top:4px}
+.expert-card .ex-go{flex-shrink:0;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800}
+/* admin bot accent */
+#hcBotPanel.admin{border-color:var(--gold)}
+#hcBotPanel.admin .hcb-head{background:radial-gradient(120% 120% at 50% 0%,#3a1a06,#15110e)}
+#hcBotPanel.admin .hcb-msg.user{background:var(--gold)}
+
 /* support bot widget */
 #hcBot{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:60}
 #hcBotBtn{display:flex;align-items:center;gap:7px;background:var(--gold);color:#241400;border:none;border-radius:100px;

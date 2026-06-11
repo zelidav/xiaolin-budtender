@@ -612,6 +612,13 @@ function viewAdmin(app){
     <div class="adm-stat"><b>${(totalPts/1000).toFixed(1)}k</b>Points</div>
   </div>
 
+  <div class="expert-card" onclick="openBot('admin')">
+    <div class="ex-ico">🛠️</div>
+    <div><div class="ex-h">App Expert · 24/7</div>
+    <div class="ex-d">An expert AI for this app — troubleshoot issues, or add &amp; update lessons, quizzes, products, events &amp; prices. It writes the exact code to paste.</div></div>
+    <div class="ex-go">Ask →</div>
+  </div>
+
   <div class="card">
     <h3 style="font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600;margin-bottom:4px">Quick-create a budtender</h3>
     <div class="field"><label>Name</label><input id="qc_name" placeholder="First & last"></div>
@@ -778,26 +785,38 @@ function initFromLink(){
 }
 /* ---------- High Council support bot (always-on) ---------- */
 const BOT_URL = "https://xiaolin-support-804083036164.us-east1.run.app/chat";
-let BOT_MSGS = [];
+let BOT_MSGS = [], BOT_MODE = "customer";
+const BOT_INTRO = {
+  customer: "👋 Welcome to the High Council. Ask me anything — how the app works, the lineup, or how to sell it.",
+  admin: "🛠️ App Expert here, 24/7. Ask me to troubleshoot anything, or to add/update lessons, quizzes, products, events, prices — I'll give you the exact code to paste & deploy."
+};
 function mountBot(){
   if (document.getElementById("hcBot")) return;
   const el = document.createElement("div"); el.id = "hcBot";
   el.innerHTML = `
-    <button id="hcBotBtn" aria-label="Support" onclick="botToggle()">💬<span>Ask</span></button>
+    <button id="hcBotBtn" aria-label="Support" onclick="openBot('customer')">💬<span>Ask</span></button>
     <div id="hcBotPanel" class="hidden">
-      <div class="hcb-head"><span>High Council Support</span><button onclick="botToggle()">✕</button></div>
+      <div class="hcb-head"><span id="hcbTitle">High Council Support</span><button onclick="botToggle()">✕</button></div>
       <div id="hcbMsgs" class="hcb-msgs"></div>
       <div class="hcb-input"><input id="hcbIn" placeholder="Ask about the app or products…" onkeydown="if(event.key==='Enter')botSend()"><button onclick="botSend()">→</button></div>
     </div>`;
   document.body.appendChild(el);
 }
+function openBot(mode){
+  const p = document.getElementById("hcBotPanel"); if(!p) return;
+  if (mode && mode !== BOT_MODE){ BOT_MODE = mode; BOT_MSGS = []; }
+  document.getElementById("hcbTitle").textContent = BOT_MODE==="admin" ? "App Expert · 24/7" : "High Council Support";
+  document.getElementById("hcbIn").placeholder = BOT_MODE==="admin" ? "Troubleshoot or edit lessons/content…" : "Ask about the app or products…";
+  const panel = document.getElementById("hcBotPanel");
+  panel.classList.toggle("admin", BOT_MODE==="admin");
+  panel.classList.remove("hidden");
+  if (!BOT_MSGS.length) botRender([{role:"assistant",content: BOT_INTRO[BOT_MODE]}], true);
+  setTimeout(()=>{ const i=document.getElementById("hcbIn"); if(i) i.focus(); }, 50);
+}
 function botToggle(){
   const p = document.getElementById("hcBotPanel"); if(!p) return;
-  p.classList.toggle("hidden");
-  if (!p.classList.contains("hidden")){
-    if (!BOT_MSGS.length) botRender([{role:"assistant",content:"👋 Welcome to the High Council. Ask me anything — how the app works, the lineup, or how to sell it."}], true);
-    setTimeout(()=>{ const i=document.getElementById("hcbIn"); if(i) i.focus(); }, 50);
-  }
+  if (p.classList.contains("hidden")) return openBot(BOT_MODE);
+  p.classList.add("hidden");
 }
 function botRender(extra, intro){
   const box = document.getElementById("hcbMsgs"); if(!box) return;
@@ -813,7 +832,7 @@ async function botSend(){
   botRender();
   try{
     const r = await fetch(BOT_URL, {method:"POST",headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({messages: BOT_MSGS.filter(m=>m.content!=="…")})});
+      body: JSON.stringify({mode: BOT_MODE, messages: BOT_MSGS.filter(m=>m.content!=="…")})});
     const d = await r.json();
     BOT_MSGS[BOT_MSGS.length-1] = {role:"assistant",content: d.reply || "Try that again?"};
   }catch(e){
