@@ -13,7 +13,7 @@ function seedDB(){
     { id: "alto-canna",   name: "Alto Canna NYC" },
     { id: "daves",        name: "Dave's Dispensary" },
   ];
-  const allSec = {}; for (let i=1;i<=13;i++) allSec[i]=true;
+  const allSec = {}; for (let i=1;i<=21;i++) allSec[i]=true;
   const sub = (keys)=>{ const o={}; keys.forEach(k=>o[k]=true); return o; };
   const sc = (keys)=>{ const o={}; keys.forEach(k=>o[k]={correct:5,total:5,pct:100}); return o; };
   const sale = (sku,prod,amt,earned,receipt)=>({ product:prod, sku, amount:amt, earned, receipt, verified:true, date:"2026-06-09" });
@@ -24,23 +24,23 @@ function seedDB(){
   };
   const users = {};
   users["david-z"] = mk("david-z", "David Z", "david@canismajorpartners.com", "Xiaolin Dispensary", "admin",
-    allSec, {1:1,2:1,3:1,4:1},
+    allSec, {1:1,2:1,3:1,4:1,5:1,6:1},
     [ sale("GODFATHER","The Godfather","420.00",255,"img/receipts/r-david.png"),
       sale("CAPO","The Capo","195.00",130,"img/receipts/r-david.png"),
-      sale("BAMBINO","The Bambino — 2pk","37.00",20,"img/receipts/r-david.png") ], sc([1,2,3,4,5,6,7,8,9,10,11,12,13]));
+      sale("BAMBINO","The Bambino — 2pk","37.00",20,"img/receipts/r-david.png") ], sc(Array.from({length:21},(_,i)=>i+1)));
   users["chris-ls"] = mk("chris-ls", 'Christopher "LS" Louie', "ls@madeinxiaolin.com", "Xiaolin Dispensary", "admin",
-    allSec, {1:1,2:1,3:1,4:1},
+    allSec, {1:1,2:1,3:1,4:1,5:1,6:1},
     [ sale("GODFATHER","The Godfather","420.00",255,"img/receipts/r-chris.png"),
       sale("GODFATHER","The Godfather","420.00",255,"img/receipts/r-chris.png"),
-      sale("GOOMAH","The Goomah","120.00",70,"img/receipts/r-chris.png") ], sc([1,2,3,4,5,6,7,8,9,10,11,12,13]));
+      sale("GOOMAH","The Goomah","120.00",70,"img/receipts/r-chris.png") ], sc(Array.from({length:21},(_,i)=>i+1)));
   users["maria-c"] = mk("maria-c", "Maria Chen", "", "Terp Bros Astoria", "budtender",
-    sub([1,2,3,4,5,6]), {1:1,2:1}, [ sale("CAPO","The Capo","195.00",130,"img/receipts/r-david.png") ], sc([1,2,3,4,5,6]));
+    sub([1,2,3,4,5,6,7,8,9,10,11]), {1:1,2:1}, [ sale("CAPO","The Capo","195.00",130,"img/receipts/r-david.png") ], sc([1,2,3,4,5,6,7,8,9,10,11]));
   users["jay-r"]   = mk("jay-r", "Jay Rivera", "", "Alto Canna NYC", "budtender",
-    sub([1,2,3]), {1:1}, [ sale("GOOMAH","The Goomah","120.00",70,"img/receipts/r-chris.png") ], sc([1,2,3]));
+    sub([1,2,3,4]), {1:1}, [ sale("GOOMAH","The Goomah","120.00",70,"img/receipts/r-chris.png") ], sc([1,2,3,4]));
   users["sam-k"]   = mk("sam-k", "Sam Kim", "", "Dave's Dispensary", "budtender",
-    allSec, {1:1,2:1,3:1,4:1}, [ sale("BAMBINO","The Bambino — 2pk","37.00",20,"img/receipts/r-david.png") ], sc([1,2,3,4,5,6,7,8,9,10,11,12,13]));
+    allSec, {1:1,2:1,3:1,4:1,5:1,6:1}, [ sale("BAMBINO","The Bambino — 2pk","37.00",20,"img/receipts/r-david.png") ], sc(Array.from({length:21},(_,i)=>i+1)));
   users["tara-w"]  = mk("tara-w", "Tara White", "", "Terp Bros Astoria", "budtender",
-    sub([1,2,3]), {1:1}, [], sc([1,2,3]));
+    sub([1,2]), {}, [], sc([1,2]));
   return { stores, users, v: 2 };
 }
 
@@ -150,7 +150,7 @@ function viewCover(app){
         <div class="es-item"><div class="es-pic"><img src="img/merch/hat-red.png" alt="hat"></div><div class="es-c">Trucker Hat</div><div class="es-p">700 pts</div></div>
         <div class="es-item"><div class="es-pic"><img src="img/medallion.jpg" alt="council"></div><div class="es-c">High Council</div><div class="es-p">1000 pts</div></div>
       </div>
-      <div class="es-rule">Earn per sale (up to <b>255</b>) · the 4 modules pay <b>1,100</b></div>
+      <div class="es-rule">Earn per sale (up to <b>255</b>) · the 6 Chambers pay up to <b>1,000</b></div>
     </div>
   </div>
   <div class="card">
@@ -190,7 +190,7 @@ function pointsHero(){
     <div class="ph-bar"><div class="ph-fill" style="width:${pctToCouncil}%"></div>
       <span class="ph-cap" style="left:10%">100</span><span class="ph-cap" style="left:40%">400</span>
       <span class="ph-cap" style="left:70%">700</span><span class="ph-cap end">1000 👑</span></div>
-    <div class="ph-rule">Points per sale — Godfather <b>255</b> · Capo <b>130</b> · Goomah <b>70</b> · Bambino <b>20</b> · modules <b>100/200/300/500</b></div>
+    <div class="ph-rule">Points per sale — Godfather <b>255</b> · Capo <b>130</b> · Goomah <b>70</b> · Bambino <b>20</b> · 6 Chambers earn up to <b>1,000</b></div>
   </div>`;
 }
 function merchLadder(compact){
@@ -226,7 +226,7 @@ function viewDashboard(app){
   ${!complete?`<div class="card" style="margin-top:14px">
     <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Training · 3 modules → High Council</h3>
     <div class="prog-outer" style="margin-top:8px"><div class="prog-inner" style="width:${Math.round(done/total*100)}%"></div></div>
-    <div class="prog-label">${done} of ${total} sections passed — modules pay <b style="color:var(--gold)">100 / 200 / 300 / 500 pts</b></div>
+    <div class="prog-label">${done} of ${total} sections passed — 6 Chambers earn up to <b style="color:var(--gold)">1,000 pts</b></div>
   </div>`:""}
   ${codeBlock}
   <a class="btn ${complete?'ghost':''}" href="#/training">${complete?'Enter the Training Chambers':'Enter the Training Chambers →'}</a>
@@ -290,28 +290,27 @@ function viewTrainingHub(app){
     </div>
     <div class="sect-grid">${secs.map(card).join("")}</div>`;
   }).join("");
-  // capstone
-  const cap = XIAOLIN.sections.find(s=>s.capstone);
+  const cap = XIAOLIN.sections.find(s=>s.capstone);   // optional
   const modsDone = XIAOLIN.modules.every(m=>moduleDone(m.id));
-  const capPassed = S.passed[cap.n];
-  const capLocked = !modsDone && !capPassed;
-  const capBlock = `<div class="mod-head capstone"><div><span class="mod-lvl">Capstone</span><span class="mod-ttl">The High Council</span></div><div class="mod-bonus">${councilUnlocked()?'👑 Open':'1,000 pts'}</div></div>
+  const capBlock = cap ? (()=>{
+    const capPassed = S.passed[cap.n], capLocked = !modsDone && !capPassed;
+    return `<div class="mod-head capstone"><div><span class="mod-lvl">Capstone</span><span class="mod-ttl">The High Council</span></div><div class="mod-bonus">${councilUnlocked()?'👑 Open':'1,000 pts'}</div></div>
     <a class="sect-card council-card ${capPassed?'passed':''} ${capLocked?'locked':''}" href="${capLocked?'#/training':'#/training/'+cap.n}">
       <span class="badge">${capPassed?'✓':(capLocked?'🔒':'👑')}</span>
-      <div class="sn">${capLocked?'Finish all 3 modules first':'Capstone'}</div>
+      <div class="sn">${capLocked?'Finish all Chambers first':'Capstone'}</div>
       <div class="st">${esc(cap.title)}</div>
-    </a>`;
+    </a>`;})() : "";
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
-  <h1>Training</h1>
-  <p class="sub">Three modules — Basic → Medium → Advanced — then the High Council. Pass each quiz at 80%. ${done}/${total} done. Each module pays points into your total.</p>
+  <h1>The Chambers</h1>
+  <p class="sub">Six Chambers, each with short lessons + quizzes. ${done} of ${total} lessons done. Finish a Chamber to bank its points — all six earn you 1,000 and your seat on the High Council.</p>
   <a href="${XIAOLIN.highCouncil.movieUrl}" target="_blank" rel="noopener" class="movie-cta">
     ▶ Watch the official Retail Sales Training Movie
     <span>Straight from the studio · recommended before you start</span>
   </a>
   ${modBlocks}
   ${capBlock}
-  ${modsDone ? `<a class="btn gold" href="#/sale" style="margin-top:16px">Modules done! Submit a sale to climb to 1,000 →</a>` : ""}
+  ${modsDone ? `<a class="btn gold" href="#/sale" style="margin-top:16px">Chambers complete! Submit a sale to keep climbing →</a>` : ""}
   ${foot()}`;
 }
 
@@ -324,21 +323,30 @@ function viewSection(app, n){
   const lvl = s.capstone ? "Capstone" : (mod ? mod.level + " · " + mod.title : "");
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/training">← All modules</a>
-  <div class="kicker">${esc(lvl)}${s.tag?' · '+esc(s.tag):''}</div>
+  <div class="kicker">${esc(lvl)}${s.tag && (!mod || s.tag!==mod.title)?' · '+esc(s.tag):''}</div>
   <h1>${s.title}</h1>
   <div class="reader">
     <img class="reader-hero" src="${s.hero}" alt="${s.title}">
     ${body}
   </div>
-  <a class="btn" href="#/training/${s.n}/quiz">${S.passed[s.n]?'Retake':'Take'} the ${esc(s.title)} Quiz →</a>
+  ${(s.quiz && s.quiz.length)
+    ? `<a class="btn" href="#/training/${s.n}/quiz">${S.passed[s.n]?'Retake':'Take'} the ${esc(s.title)} Quiz →</a>`
+    : `<button class="btn" onclick="markRead(${s.n})">${S.passed[s.n]?'Lesson Complete ✓':'Mark Lesson Complete →'}</button>`}
   ${foot()}`;
   window.scrollTo(0,0);
+}
+// Lessons with no quiz (e.g. summaries) complete on read.
+function markRead(n){
+  if (!S.passed[n]){ S.passed[n] = true; const m = awardModuleBonus(); saveState(S);
+    if (m) alert(`${m.level} complete — ${m.title}. +${m.bonus} points!`); }
+  go("#/training");
 }
 
 /* ---------- quiz ---------- */
 function viewQuiz(app, n){
   const s = XIAOLIN.sections.find(x=>x.n===n);
   if (!s) return go("#/training");
+  if (!s.quiz || !s.quiz.length) return go("#/training/"+n);   // no-quiz lesson
   const qs = s.quiz;
   const html = qs.map((q,qi)=>{
     const opts = Object.entries(q.o).map(([k,v])=>`
@@ -351,7 +359,7 @@ function viewQuiz(app, n){
   <a class="backlink" href="#/training/${n}">← Re-read ${esc(s.title)}</a>
   <div class="kicker">${esc(s.title)} · Quiz</div>
   <h1>${s.title}</h1>
-  <p class="sub">${qs.length} questions · 80% to pass${S.passed[n]?' · already passed ✓':''}</p>
+  <p class="sub">${qs.length} question${qs.length>1?'s':''} · miss at most one to pass${S.passed[n]?' · already passed ✓':''}</p>
   <div id="scoreSlot"></div>
   <form id="quiz">${html}</form>
   <button class="btn" id="submitBtn" onclick="gradeQuiz(${n})">Submit Answers</button>
@@ -386,7 +394,7 @@ function gradeQuiz(n){
       `<strong>Not quite —</strong> the answer is <strong>${esc(q.o[q.a])}</strong>. ${esc(q.e)}`;
   });
   const pct = Math.round(correct/qs.length*100);
-  const passed = correct/qs.length >= PASS;
+  const passed = correct >= Math.max(1, qs.length - 1);
   const slot = document.getElementById("scoreSlot");
   // record the score (keep the best attempt)
   S.scores = S.scores || {};
