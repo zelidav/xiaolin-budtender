@@ -776,5 +776,52 @@ function initFromLink(){
     if (!location.hash || location.hash === "#/") location.hash = "#/dashboard";
   }
 }
+/* ---------- High Council support bot (always-on) ---------- */
+const BOT_URL = "https://xiaolin-support-804083036164.us-east1.run.app/chat";
+let BOT_MSGS = [];
+function mountBot(){
+  if (document.getElementById("hcBot")) return;
+  const el = document.createElement("div"); el.id = "hcBot";
+  el.innerHTML = `
+    <button id="hcBotBtn" aria-label="Support" onclick="botToggle()">💬<span>Ask</span></button>
+    <div id="hcBotPanel" class="hidden">
+      <div class="hcb-head"><span>High Council Support</span><button onclick="botToggle()">✕</button></div>
+      <div id="hcbMsgs" class="hcb-msgs"></div>
+      <div class="hcb-input"><input id="hcbIn" placeholder="Ask about the app or products…" onkeydown="if(event.key==='Enter')botSend()"><button onclick="botSend()">→</button></div>
+    </div>`;
+  document.body.appendChild(el);
+}
+function botToggle(){
+  const p = document.getElementById("hcBotPanel"); if(!p) return;
+  p.classList.toggle("hidden");
+  if (!p.classList.contains("hidden")){
+    if (!BOT_MSGS.length) botRender([{role:"assistant",content:"👋 Welcome to the High Council. Ask me anything — how the app works, the lineup, or how to sell it."}], true);
+    setTimeout(()=>{ const i=document.getElementById("hcbIn"); if(i) i.focus(); }, 50);
+  }
+}
+function botRender(extra, intro){
+  const box = document.getElementById("hcbMsgs"); if(!box) return;
+  const all = intro ? extra : BOT_MSGS;
+  box.innerHTML = all.map(m=>`<div class="hcb-msg ${m.role}">${m.content==="…"?'<span class="hcb-typing">●●●</span>':esc(m.content)}</div>`).join("");
+  box.scrollTop = box.scrollHeight;
+}
+async function botSend(){
+  const inp = document.getElementById("hcbIn"); const text=(inp.value||"").trim(); if(!text) return;
+  inp.value="";
+  BOT_MSGS.push({role:"user",content:text});
+  BOT_MSGS.push({role:"assistant",content:"…"});
+  botRender();
+  try{
+    const r = await fetch(BOT_URL, {method:"POST",headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({messages: BOT_MSGS.filter(m=>m.content!=="…")})});
+    const d = await r.json();
+    BOT_MSGS[BOT_MSGS.length-1] = {role:"assistant",content: d.reply || "Try that again?"};
+  }catch(e){
+    BOT_MSGS[BOT_MSGS.length-1] = {role:"assistant",content:"Connection hiccup — give it another shot."};
+  }
+  botRender();
+}
+
 initFromLink();
+mountBot();
 render();
