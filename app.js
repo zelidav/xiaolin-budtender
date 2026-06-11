@@ -826,11 +826,44 @@ function botToggle(){
   if (p.classList.contains("hidden")) return openBot(BOT_MODE);
   p.classList.add("hidden");
 }
+let APPLY_ACTIONS = [];
+function botMsgHtml(m){
+  if (m.content === "…") return '<span class="hcb-typing">●●●</span>';
+  if (m.role === "assistant" && /```apply/.test(m.content)){
+    const re = /```apply\s*([\s\S]*?)```/g; let out = ""; let last = 0; let mm;
+    while ((mm = re.exec(m.content)) !== null){
+      out += esc(m.content.slice(last, mm.index));
+      const idx = APPLY_ACTIONS.push(mm[1].trim()) - 1;
+      out += `<div class="hcb-apply"><button onclick="botApply(${idx})">✅ Apply &amp; Deploy</button></div>`;
+      last = mm.index + mm[0].length;
+    }
+    out += esc(m.content.slice(last));
+    return out;
+  }
+  return esc(m.content);
+}
 function botRender(extra, intro){
   const box = document.getElementById("hcbMsgs"); if(!box) return;
   const all = intro ? extra : BOT_MSGS;
-  box.innerHTML = all.map(m=>`<div class="hcb-msg ${m.role}">${m.content==="…"?'<span class="hcb-typing">●●●</span>':esc(m.content)}</div>`).join("");
+  APPLY_ACTIONS = [];
+  box.innerHTML = all.map(m=>`<div class="hcb-msg ${m.role}">${botMsgHtml(m)}</div>`).join("");
   box.scrollTop = box.scrollHeight;
+}
+async function botApply(idx){
+  let action; try { action = JSON.parse(APPLY_ACTIONS[idx]); } catch(e){ alert("Couldn't read that action."); return; }
+  let key = sessionStorage.getItem("xhc_apply_key");
+  if (!key){ key = prompt("Enter your Apply key to deploy this change:"); if (!key) return; sessionStorage.setItem("xhc_apply_key", key); }
+  action.key = key;
+  BOT_MSGS.push({role:"assistant", content:"⏳ Applying & deploying…"}); botRender();
+  try {
+    const r = await fetch(BOT_URL.replace("/chat","/apply"), {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(action)});
+    const d = await r.json();
+    BOT_MSGS[BOT_MSGS.length-1] = d.ok
+      ? {role:"assistant", content:"✅ Done — committed and deploying (live in ~1–2 min)."+(d.commit?"\n"+d.commit:"")}
+      : {role:"assistant", content:"⚠️ "+(d.error||"Apply failed")+( /unauthorized/.test(d.error||"")?" (re-enter your Apply key next time)":"")};
+    if (!d.ok && /unauthorized/.test(d.error||"")) sessionStorage.removeItem("xhc_apply_key");
+  } catch(e){ BOT_MSGS[BOT_MSGS.length-1] = {role:"assistant", content:"⚠️ Apply error — try again."}; }
+  botRender();
 }
 async function botSend(){
   const inp = document.getElementById("hcbIn"); const text=(inp.value||"").trim(); if(!text) return;
