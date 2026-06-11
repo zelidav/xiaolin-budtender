@@ -121,11 +121,11 @@ function topbar(){
   return `<div class="topbar">
     <a class="brand" href="#/dashboard" style="text-decoration:none">
       <img src="img/xiaolin-logo.png" alt="Made in Xiaolin">
-      <div><div class="nm">Made in Xiaolin</div><div class="ac">Roller Academy</div></div>
+      <div><div class="nm">Made in Xiaolin</div><div class="ac">High Council Academy</div></div>
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       ${isAdmin()?`<a href="#/admin" class="admin-chip">ADMIN</a>`:""}
-      <div class="pts"><b>${p}</b>Roller Pts</div>
+      <div class="pts"><b>${p}</b>HC Points</div>
     </div>
   </div>`;
 }
@@ -137,7 +137,7 @@ function viewCover(app){
   <div class="cover">
     <img class="seal" src="img/xiaolin-logo.png" alt="Made in Xiaolin">
     <div class="kicker">Budtender Program</div>
-    <h1>The Roller<br>Academy</h1>
+    <h1>The High Council<br>Academy</h1>
     <div class="promise">Learn the craft. Earn the merch.</div>
     <div class="marque"><span>High Times</span><span class="x">×</span><span>Playboy</span><span class="x">×</span><span>Forbes</span></div>
     <p class="sub">The original creative rolling studio — now <strong>Made in New York</strong>. Get certified, sell, and rack up points to earn real <strong>Xiaolin × your shop</strong> gear and a seat on the <strong>High Council</strong>.</p>
@@ -217,11 +217,11 @@ function viewDashboard(app){
   const complete = allPassed();
   if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
   const codeBlock = codeUnlocked()
-    ? `<div class="codechip"><div class="l">Your Budtender Code · ${XIAOLIN.rewards.discountPct}% Off</div><div class="c">${S.code}</div></div>`
+    ? `<div class="codechip"><div class="l">Your High Council Code · ${XIAOLIN.rewards.discountPct}% Off</div><div class="c">${S.code}</div></div>`
     : `<div class="codechip locked"><div class="l">50% Code — Locked</div><div class="c">Reach 100 pts (the modules get you there)</div></div>`;
   app.innerHTML = `${topbar()}
-  <div class="kicker">Welcome, ${esc(S.name.split(" ")[0])}</div>
-  <h1 style="font-size:2.4rem">${esc(S.store)}</h1>
+  <div class="kicker">Welcome, ${esc(S.name.split(" ")[0])} · ${esc(S.store)}</div>
+  <h1 style="font-size:2.4rem">High Council Dashboard</h1>
   ${pointsHero()}
   ${!complete?`<div class="card" style="margin-top:14px">
     <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Training · 3 modules → High Council</h3>
@@ -229,16 +229,39 @@ function viewDashboard(app){
     <div class="prog-label">${done} of ${total} sections passed — modules pay <b style="color:var(--gold)">100 / 200 / 300 / 500 pts</b></div>
   </div>`:""}
   ${codeBlock}
-  <a class="btn ${complete?'ghost':''}" href="#/training">${complete?'Review Training':'Continue Training →'}</a>
-  <a class="btn ${complete?'gold':'ghost'}" href="#/sale">📷 Log a Sale (1 pt / $) →</a>
-  <a class="btn ghost" href="#/lineup">Study the Lineup</a>
+  <a class="btn ${complete?'ghost':''}" href="#/training">${complete?'Enter the Training Chambers':'Enter the Training Chambers →'}</a>
+  <a class="btn ${complete?'gold':'ghost'}" href="#/sale">📷 Submit a Sale →</a>
+  <a class="btn ghost" href="#/lineup">The Lineup</a>
+
+  ${councilEvents()}
 
   <div class="vault-head">
-    <h3>The Rewards Vault</h3>
+    <h3>The Commissary</h3>
     <a href="#/reward" class="vault-link">View all →</a>
   </div>
   ${merchLadder(true)}
   ${foot()}`;
+}
+
+/* ---------- High Council events ---------- */
+function councilEvents(){
+  const evs = (XIAOLIN.events||[]);
+  if (!evs.length) return "";
+  const rows = evs.map(e=>{
+    const [mo,day] = e.date.split(" ");
+    return `<div class="ev-row">
+      <div class="ev-date"><span class="ev-mo">${esc(mo)}</span><span class="ev-day">${esc(day)}</span></div>
+      <div class="ev-b">
+        <div class="ev-type">${esc(e.type)}${e.pts?` · +${e.pts} pts`:""}</div>
+        <div class="ev-t">${esc(e.title)}</div>
+        <div class="ev-note">${esc(e.note)}</div>
+        <div class="ev-where">📍 ${esc(e.where)}</div>
+      </div>
+    </div>`;
+  }).join("");
+  return `<div class="vault-head"><h3>High Council Events</h3><span class="vault-link">RSVP at workshops</span></div>
+  <p class="sub" style="margin:-4px 0 10px">Upcoming workshops, trainings, flavor reviews &amp; experiences — attend to earn Commissary points.</p>
+  <div class="ev-list">${rows}</div>`;
 }
 
 /* ---------- training hub ---------- */
@@ -288,7 +311,7 @@ function viewTrainingHub(app){
   </a>
   ${modBlocks}
   ${capBlock}
-  ${modsDone ? `<a class="btn gold" href="#/sale" style="margin-top:16px">Modules done! Log a sale to climb to 1,000 →</a>` : ""}
+  ${modsDone ? `<a class="btn gold" href="#/sale" style="margin-top:16px">Modules done! Submit a sale to climb to 1,000 →</a>` : ""}
   ${foot()}`;
 }
 
@@ -380,7 +403,7 @@ function gradeQuiz(n){
     msg = councilUnlocked()
       ? "You know all of Xiaolin — and you've hit 1,000 points. The High Council is open."
       : `You know all of Xiaolin. Reach <b>1,000 pts</b> (${(COUNCIL_PTS()-pts()).toLocaleString()} to go) and your High Council invitation unlocks.`;
-    cta = `<a class="btn gold" href="#/reward">Open the Rewards Vault →</a>`;
+    cta = `<a class="btn gold" href="#/reward">Open the Commissary →</a>`;
   } else if (moduleJustDone){
     msg = `<b>${esc(moduleJustDone.level)} module complete</b> — “${esc(moduleJustDone.title)}.” <b>+${moduleJustDone.bonus} points!</b>`;
     cta = `<a class="btn gold" href="#/training">Continue to the Next Module →</a>`;
@@ -443,7 +466,7 @@ function viewSale(app){
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
   <div class="kicker">Receipt Scanner</div>
-  <h1>Log a Sale</h1>
+  <h1>Submit a Sale</h1>
   <p class="sub">Log a Made in Xiaolin sale — attach a photo of the receipt, pick the product, and bank the points. Points are per product (Godfather 255 · Capo 130 · Goomah 70 · Soldato 45 · Bambino 20).</p>
 
   <div class="card">
@@ -460,7 +483,7 @@ function viewSale(app){
       <input id="ramt" type="number" inputmode="decimal" min="1" placeholder="e.g. 420"></div>
 
     <div class="err" id="saleErr">Attach a receipt photo and an amount to log the sale.</div>
-    <button class="btn" id="logBtn" onclick="logSale()">Log This Sale</button>
+    <button class="btn" id="logBtn" onclick="logSale()">Submit Sale</button>
   </div>
 
   ${prior?`<h3 style="margin:22px 0 6px;font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600">Your logged sales</h3><div class="card" style="padding:6px 18px">${prior}</div>`:""}
@@ -540,9 +563,9 @@ function viewExchange(app){
   }).join("");
   const hist = (S.redemptions||[]).map(r=>`<div class="sale-row"><span class="sr-name">🎁 ${esc(r.name)}</span><span class="sr-pts">-${r.pts}</span></div>`).join("");
   app.innerHTML = `${topbar()}
-  <a class="backlink" href="#/reward">← Rewards Vault</a>
+  <a class="backlink" href="#/reward">← Commissary</a>
   <div class="kicker">The Commissary</div>
-  <h1>Exchange Points</h1>
+  <h1>Commissary Catalog</h1>
   <p class="sub">Trade your points for <b style="color:var(--gold)">merch or real Made in Xiaolin product</b> — your shot at being the one with the best at the party. You have <b style="color:var(--gold)">${p.toLocaleString()} pts</b>.</p>
   <div class="ex-grid">${items}</div>
   ${hist?`<h3 style="margin:22px 0 6px;font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600">Redeemed</h3><div class="card" style="padding:6px 16px">${hist}</div>`:""}
@@ -678,7 +701,7 @@ function viewReward(app){
   const hc = XIAOLIN.highCouncil;
   if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
   const codeBlock = codeUnlocked()
-    ? `<div class="codechip"><div class="l">Your Budtender Code · ${XIAOLIN.rewards.discountPct}% Off</div><div class="c">${S.code}</div></div>`
+    ? `<div class="codechip"><div class="l">Your High Council Code · ${XIAOLIN.rewards.discountPct}% Off</div><div class="c">${S.code}</div></div>`
     : `<div class="codechip locked"><div class="l">50% Code — Locked</div><div class="c">Finish training (+100 pts) to unlock</div></div>`;
 
   const council = councilUnlocked()
@@ -698,12 +721,12 @@ function viewReward(app){
         <div class="ut" style="color:var(--gold-soft)">The Ultimate Prize · 1,000 pts</div>
         <h2 style="color:#fff;font-family:var(--serif);font-size:2rem;margin:6px 0">The High Council 🔒</h2>
         <p style="color:#e7c9ad;font-size:.9rem;line-height:1.5">Xiaolin's inner circle. ${esc((COUNCIL_PTS()-pts()).toLocaleString())} more points and your invitation to apply unlocks.</p>
-        <a class="btn gold" href="#/sale" style="margin-top:14px">Log a Sale to Climb →</a>
+        <a class="btn gold" href="#/sale" style="margin-top:14px">Submit a Sale to Climb →</a>
       </div>`;
 
   app.innerHTML = `${topbar()}
   <a class="backlink" href="#/dashboard">← Dashboard</a>
-  <div class="kicker">Rewards Vault</div>
+  <div class="kicker">Commissary</div>
   <h1>Earn the Gear</h1>
   <p class="sub">Earn points per verified sale (Godfather 255 · Capo 130 · Goomah 70 · Bambino 20) + your 3 modules. Climb to your code, your Xiaolin × ${esc(S.store)} merch, and a seat on the High Council at 1,000.</p>
   ${pointsHero()}
@@ -712,8 +735,8 @@ function viewReward(app){
   ${merchLadder(false)}
   ${council}
   ${commissaryPanel()}
-  <a class="btn gold" href="#/exchange">🎁 Exchange Points (merch or product) →</a>
-  <a class="btn ghost" href="#/sale">📷 Log a Sale (earn points)</a>
+  <a class="btn gold" href="#/exchange">🎁 Open the Commissary Catalog →</a>
+  <a class="btn ghost" href="#/sale">📷 Submit a Sale (earn points)</a>
   <a class="btn ghost" href="#/lineup">Brush Up on the Lineup</a>
   ${foot()}`;
   window.scrollTo(0,0);

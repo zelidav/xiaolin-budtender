@@ -253,6 +253,17 @@ input::placeholder{color:#6f6354}
 .ml-co{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;margin-top:3px}
 .ml-d{font-size:.78rem;color:var(--mute);line-height:1.4;margin-top:5px}
 
+/* High Council events */
+.ev-list{display:flex;flex-direction:column;gap:10px}
+.ev-row{display:flex;gap:13px;background:var(--card);border:1px solid var(--card-line);border-radius:10px;padding:13px 14px}
+.ev-date{flex-shrink:0;width:50px;text-align:center;background:radial-gradient(120% 120% at 50% 0%,#2a0f0c,#100a08);border:1px solid var(--card-line);border-radius:8px;padding:8px 0;align-self:flex-start}
+.ev-date .ev-mo{display:block;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.ev-date .ev-day{display:block;font-family:var(--serif);font-size:1.5rem;color:var(--ink);font-weight:600;line-height:1}
+.ev-type{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:800}
+.ev-t{font-family:var(--serif);font-size:1.15rem;color:var(--ink);font-weight:600;line-height:1.1;margin-top:2px}
+.ev-note{font-size:.78rem;color:var(--mute);line-height:1.4;margin-top:3px}
+.ev-where{font-size:.68rem;color:var(--gold-deep);font-weight:600;margin-top:4px}
+
 /* admin chip */
 .admin-chip{font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:#241400;background:var(--gold);
   padding:5px 10px;border-radius:100px;text-decoration:none;white-space:nowrap}
