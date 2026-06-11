@@ -448,7 +448,6 @@ const XIAOLIN = {
 
   // Upcoming High Council experiences — workshops, trainings, flavor reviews, etc.
   events: [
-    { date: "Aug 07", type: "Connect", title: "High Council Connect — Summer", where: "Brooklyn, NY", note: "Meet the family + first look at the fall drop.", pts: 25 },
     { date: "Jun 18", type: "Flavor Review",  title: "Flavor Review Workshop", where: "Warwick, NY",
       note: "Blind-taste the next NY drop and help pick what makes the cut.", pts: 25 },
     { date: "Jun 25", type: "Experience",     title: "High Council Experience (Live)", where: "NYC",
