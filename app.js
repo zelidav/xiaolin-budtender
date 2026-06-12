@@ -827,20 +827,30 @@ function botToggle(){
   p.classList.add("hidden");
 }
 let APPLY_ACTIONS = [];
+let APPLIED = new Set();   // action JSON strings already applied → button becomes one-shot
 function botMsgHtml(m){
   if (m.content === "…") return '<span class="hcb-typing">●●●</span>';
-  if (m.role === "assistant" && /```apply/.test(m.content)){
-    const re = /```apply\s*([\s\S]*?)```/g; let out = ""; let last = 0; let mm;
-    while ((mm = re.exec(m.content)) !== null){
-      out += esc(m.content.slice(last, mm.index));
-      const idx = APPLY_ACTIONS.push(mm[1].trim()) - 1;
-      out += `<div class="hcb-apply"><button onclick="botApply(${idx})">✅ Apply &amp; Deploy</button></div>`;
-      last = mm.index + mm[0].length;
-    }
-    out += esc(m.content.slice(last));
-    return out;
+  if (m.role !== "assistant") return esc(m.content);
+  // Pull out EVERY fenced code block. If it's an action (JSON with an "op"), turn it
+  // into a clean button (and hide the code). Any other technical code block is dropped.
+  const re = /```[a-zA-Z]*\s*([\s\S]*?)```/g;
+  let out = "", last = 0, mm;
+  while ((mm = re.exec(m.content)) !== null){
+    out += esc(m.content.slice(last, mm.index));
+    const raw = mm[1].trim();
+    let action = null; try { const j = JSON.parse(raw); if (j && j.op) action = raw; } catch(e){}
+    if (action){
+      if (APPLIED.has(action)){
+        out += `<div class="hcb-apply done">✅ Applied — live</div>`;
+      } else {
+        const idx = APPLY_ACTIONS.push(action) - 1;
+        out += `<div class="hcb-apply"><button onclick="botApply(${idx})">✅ Apply Change</button></div>`;
+      }
+    } // else: technical code block → dropped (masked)
+    last = mm.index + mm[0].length;
   }
-  return esc(m.content);
+  out += esc(m.content.slice(last));
+  return out.trim();
 }
 function botRender(extra, intro){
   const box = document.getElementById("hcbMsgs"); if(!box) return;
@@ -862,6 +872,7 @@ async function botApply(idx){
   action.key = key.trim ? key.trim() : key;
   BOT_MSGS.push({role:"assistant", content:"⏳ Applying & deploying…"}); botRender();
   const d = await botApplyFetch(action);
+  if (d && d.ok) APPLIED.add(APPLY_ACTIONS[idx]);   // one-shot: button → "Applied"
   BOT_MSGS[BOT_MSGS.length-1] = (d && d.ok)
     ? {role:"assistant", content:"✅ Done — your change is live in a minute or two."}
     : {role:"assistant", content:"⚠️ "+((d&&/unauthorized/.test(d.error||""))?"Wrong password — try again":"That didn't go through — try again")};

@@ -258,6 +258,7 @@ input::placeholder{color:#6f6354}
 .hcb-apply button{background:var(--gold);color:#241400;border:none;border-radius:8px;padding:11px 16px;font-weight:800;
   font-size:.78rem;letter-spacing:.04em;cursor:pointer;width:100%;touch-action:manipulation}
 .hcb-apply button:active{transform:scale(.98)}
+.hcb-apply.done{background:var(--good-soft);border:1px solid var(--good);color:var(--good);border-radius:8px;padding:10px 14px;font-weight:700;font-size:.78rem;text-align:center}
 
 /* admin App Expert card */
 .expert-card{display:flex;align-items:center;gap:13px;cursor:pointer;margin:14px 0;padding:16px 16px;border-radius:10px;
