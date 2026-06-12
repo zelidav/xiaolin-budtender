@@ -51,11 +51,7 @@
   window.XLGate = { play: play };
 
   // Main gate — once per browser session
-  function mainGate(){
-    if (sessionStorage.getItem("xl_main")) return;
-    sessionStorage.setItem("xl_main", "1");
-    play("XIAOLIN", "High Council Academy");
-  }
+  function mainGate(){ play("XIAOLIN", "High Council Academy"); }  // every load (replays on refresh)
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mainGate);
   else mainGate();
 
