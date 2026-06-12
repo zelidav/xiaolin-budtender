@@ -22,12 +22,13 @@
     } catch(e){}
   }
 
-  function play(word, sub, quick){
+  function play(word, sub, quick, img){
     var ex = document.getElementById("xl-gate"); if (ex && ex.parentNode) ex.parentNode.removeChild(ex);
     var g = document.createElement("div");
     g.id = "xl-gate"; if (quick) g.className = "xl-quick";
+    var ds = img ? " style=\"background-image:url('" + img + "')\"" : "";
     g.innerHTML =
-      "<div class='xl-door l'></div><div class='xl-door r'></div><div class='xl-seam'></div>" +
+      "<div class='xl-door l'" + ds + "></div><div class='xl-door r'" + ds + "></div><div class='xl-seam'></div>" +
       "<div class='xl-crest'><img class='xl-seal' src='img/medallion.jpg' alt=''>" +
       "<div class='xl-word'>" + word + "</div><div class='xl-sub'>" + sub + "</div></div>" +
       "<button class='xl-snd' id='xl-snd' aria-label='sound'>" + (soundOn ? "🔊" : "🔇") + "</button>" +
@@ -66,6 +67,8 @@
     var key = "xl_ch_" + sec.module; if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, "1");
     var mod = (X.modules || []).find(function(x){ return x.id === sec.module; });
-    play(mod ? mod.title : "Chamber", mod ? mod.level : "Entering", true);
+    // Each Chamber's gate grows more ornate (jade → jewels → gold). Ch I = the base gate.
+    var img = sec.module > 1 ? ("img/gate-ch" + sec.module + ".jpg") : "img/gate-doors.jpg";
+    play(mod ? mod.title : "Chamber", mod ? mod.level : "Entering", true, img);
   });
 })();

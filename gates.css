@@ -32,9 +32,9 @@
 #xl-gate.xl-quick .xl-crest{animation-delay:.7s}
 
 /* real nano-banana temple doors — each door shows its half of the gate image */
-#xl-gate .xl-door{z-index:2;background-repeat:no-repeat;background-size:100vw 100vh;background-color:#140805}
-#xl-gate .xl-door.l{background-image:url(img/gate-doors.jpg);background-position:left center}
-#xl-gate .xl-door.r{background-image:url(img/gate-doors.jpg);background-position:right center}
+#xl-gate .xl-door{z-index:2;background-repeat:no-repeat;background-size:100vw 100vh;background-color:#140805;background-image:url(img/gate-doors.jpg)}
+#xl-gate .xl-door.l{background-position:left center}
+#xl-gate .xl-door.r{background-position:right center}
 #xl-gate .xl-door::before,#xl-gate .xl-door::after{display:none}  /* doors already have studs + handles in the art */
 #xl-gate .xl-seam{z-index:2;width:6px;margin-left:-3px;background:linear-gradient(180deg,#ffe6a8,#f5ce50,#ffe6a8);box-shadow:0 0 34px rgba(245,206,80,.85)}
 #xl-gate .xl-crest{z-index:4}
