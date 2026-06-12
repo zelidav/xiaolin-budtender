@@ -863,8 +863,8 @@ async function botApply(idx){
   BOT_MSGS.push({role:"assistant", content:"⏳ Applying & deploying…"}); botRender();
   const d = await botApplyFetch(action);
   BOT_MSGS[BOT_MSGS.length-1] = (d && d.ok)
-    ? {role:"assistant", content:"✅ Done — committed and deploying (live in ~1–2 min)."+(d.commit?"\n"+d.commit:"")}
-    : {role:"assistant", content:"⚠️ "+((d&&d.error)||"Apply failed")+( (d&&/unauthorized/.test(d.error||""))?" — wrong password, try again":"")};
+    ? {role:"assistant", content:"✅ Done — your change is live in a minute or two."}
+    : {role:"assistant", content:"⚠️ "+((d&&/unauthorized/.test(d.error||""))?"Wrong password — try again":"That didn't go through — try again")};
   if (d && !d.ok && /unauthorized/.test(d.error||"")) sessionStorage.removeItem("xhc_apply_key");
   botRender();
 }
