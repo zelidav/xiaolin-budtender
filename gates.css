@@ -18,3 +18,15 @@
 @keyframes xlCrest{0%{opacity:0;transform:scale(.8)}60%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
 @keyframes xlGateFade{to{opacity:0;visibility:hidden}}
 @keyframes xlBlink{0%,100%{opacity:.25}50%{opacity:.7}}
+/* medallion in the crest */
+#xl-gate .xl-crest .xl-seal{width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid #d4af37;display:block;margin:0 auto 16px;box-shadow:0 0 38px rgba(212,175,55,.55);animation:xlSealGlow 2.4s ease-in-out infinite}
+@keyframes xlSealGlow{50%{box-shadow:0 0 62px rgba(212,175,55,.85)}}
+/* sound toggle */
+#xl-gate .xl-snd{position:absolute;z-index:5;top:calc(14px + env(safe-area-inset-top));right:14px;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid rgba(212,175,55,.5);color:#d4af37;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#xl-gate .xl-snd:active{transform:scale(.94)}
+/* quicker chamber gates */
+#xl-gate.xl-quick{animation:xlGateFade .5s ease 1.8s forwards}
+#xl-gate.xl-quick .xl-door.l{animation-duration:1.05s;animation-delay:.3s}
+#xl-gate.xl-quick .xl-door.r{animation-duration:1.05s;animation-delay:.3s}
+#xl-gate.xl-quick .xl-seam{animation-delay:.85s}
+#xl-gate.xl-quick .xl-crest{animation-delay:.7s}
