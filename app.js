@@ -858,12 +858,12 @@ async function botApplyFetch(action){
 async function botApply(idx){
   let action; try { action = JSON.parse(APPLY_ACTIONS[idx]); } catch(e){ alert("Couldn't read that action."); return; }
   let key = sessionStorage.getItem("xhc_apply_key");
-  if (!key){ key = prompt("Enter your Apply key to deploy this change:"); if (!key) return; sessionStorage.setItem("xhc_apply_key", key); }
+  if (!key){ key = prompt("Step 1 of 2 — enter your APPLY KEY (starts with XHC-APPLY-):"); if (!key) return; sessionStorage.setItem("xhc_apply_key", key); }
   action.key = key;
   BOT_MSGS.push({role:"assistant", content:"⏳ Applying & deploying…"}); botRender();
   let d = await botApplyFetch(action);
   if (d && d.needConfirm){   // structural change → second password (not cached, asked each time)
-    const pw = prompt("🔒 Structural change — enter the secondary authorization password (David or Chris):");
+    const pw = prompt("Step 2 — STRUCTURAL change. Enter the secondary password (David or Chris):");
     if (!pw){ BOT_MSGS[BOT_MSGS.length-1] = {role:"assistant", content:"Cancelled — structural changes need the secondary password."}; botRender(); return; }
     action.confirm = pw;
     d = await botApplyFetch(action);
