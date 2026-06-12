@@ -858,19 +858,13 @@ async function botApplyFetch(action){
 async function botApply(idx){
   let action; try { action = JSON.parse(APPLY_ACTIONS[idx]); } catch(e){ alert("Couldn't read that action."); return; }
   let key = sessionStorage.getItem("xhc_apply_key");
-  if (!key){ key = prompt("Step 1 of 2 — enter your APPLY KEY (starts with XHC-APPLY-):"); if (!key) return; sessionStorage.setItem("xhc_apply_key", key); }
-  action.key = key;
+  if (!key){ key = prompt("Enter the password to apply & deploy this change:"); if (!key) return; sessionStorage.setItem("xhc_apply_key", key.trim()); }
+  action.key = key.trim ? key.trim() : key;
   BOT_MSGS.push({role:"assistant", content:"⏳ Applying & deploying…"}); botRender();
-  let d = await botApplyFetch(action);
-  if (d && d.needConfirm){   // structural change → second password (not cached, asked each time)
-    const pw = prompt("Step 2 — STRUCTURAL change. Enter the secondary password (David or Chris):");
-    if (!pw){ BOT_MSGS[BOT_MSGS.length-1] = {role:"assistant", content:"Cancelled — structural changes need the secondary password."}; botRender(); return; }
-    action.confirm = pw;
-    d = await botApplyFetch(action);
-  }
+  const d = await botApplyFetch(action);
   BOT_MSGS[BOT_MSGS.length-1] = (d && d.ok)
     ? {role:"assistant", content:"✅ Done — committed and deploying (live in ~1–2 min)."+(d.commit?"\n"+d.commit:"")}
-    : {role:"assistant", content:"⚠️ "+((d&&d.error)||"Apply failed")+( (d&&/unauthorized/.test(d.error||""))?" (re-enter your Apply key next time)":"")};
+    : {role:"assistant", content:"⚠️ "+((d&&d.error)||"Apply failed")+( (d&&/unauthorized/.test(d.error||""))?" — wrong password, try again":"")};
   if (d && !d.ok && /unauthorized/.test(d.error||"")) sessionStorage.removeItem("xhc_apply_key");
   botRender();
 }
