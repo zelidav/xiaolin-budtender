@@ -221,7 +221,7 @@ function viewDashboard(app){
     : `<div class="codechip locked"><div class="l">50% Code — Locked</div><div class="c">Reach 100 pts (the modules get you there)</div></div>`;
   app.innerHTML = `${topbar()}
   <div class="kicker">Welcome, ${esc(S.name.split(" ")[0])} · ${esc(S.store)}</div>
-  <h1 style="font-size:2.4rem">High Council Dashboard</h1>
+  <h1 style="font-size:2.4rem">High Council</h1>
   ${pointsHero()}
   ${!complete?`<div class="card" style="margin-top:14px">
     <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Training · 3 modules → High Council</h3>
