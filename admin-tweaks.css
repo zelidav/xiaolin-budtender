@@ -1,0 +1,8 @@
+/* Center the big High Council title on the home page */
+.home-hero h1,
+.hero-title,
+.brand-title,
+h1.high-council {
+  text-align: center !important;
+  width: 100%;
+}
