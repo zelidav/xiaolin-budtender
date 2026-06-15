@@ -342,17 +342,31 @@ input::placeholder{color:#6f6354}
 .ev-where{font-size:.68rem;color:var(--gold-deep);font-weight:600;margin-top:4px}
 
 /* Add-to-Home-Screen banner */
-#a2hs{position:fixed;z-index:100001;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));
-  display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:12px;
+#a2hs{position:fixed;z-index:100001;left:10px;right:10px;
   background:rgba(18,10,8,.97);border:1px solid var(--gold-soft);box-shadow:0 12px 32px rgba(0,0,0,.6);
-  transform:translateY(-150%);transition:transform .4s cubic-bezier(.2,.85,.25,1)}
-#a2hs.show{transform:translateY(0)}
+  border-radius:12px;transition:transform .42s cubic-bezier(.2,.85,.25,1)}
+/* top variant (Android / desktop / "open in Safari" notice) */
+#a2hs.a2-top{top:calc(10px + env(safe-area-inset-top));display:flex;align-items:center;gap:11px;
+  padding:10px 12px;transform:translateY(-160%)}
+#a2hs.a2-top.show{transform:translateY(0)}
+/* bottom variant (iOS Safari install steps, anchored near the Share button) */
+#a2hs.a2-bottom{bottom:calc(12px + env(safe-area-inset-bottom));padding:13px 14px 16px;transform:translateY(180%)}
+#a2hs.a2-bottom.show{transform:translateY(0)}
 #a2hs img{width:40px;height:40px;border-radius:9px;flex-shrink:0}
 #a2hs .a2-tx{flex:1;min-width:0;line-height:1.25}
 #a2hs .a2-tx b{display:block;font-family:var(--serif);font-size:1rem;color:var(--gold)}
 #a2hs .a2-tx span{font-size:.72rem;color:var(--ink-soft)}
-#a2hs #a2-add{flex-shrink:0;background:var(--gold);color:#241400;border:none;border-radius:100px;padding:9px 15px;font-weight:800;font-size:.72rem;letter-spacing:.06em;cursor:pointer}
-#a2hs #a2-x{flex-shrink:0;background:none;border:none;color:var(--mute);font-size:1.05rem;cursor:pointer;padding:2px 6px}
+#a2hs #a2-add,#a2hs #a2-copy{flex-shrink:0;background:var(--gold);color:#241400;border:none;border-radius:100px;padding:9px 15px;font-weight:800;font-size:.72rem;letter-spacing:.06em;cursor:pointer;white-space:nowrap}
+#a2hs #a2-x{position:static;flex-shrink:0;background:none;border:none;color:var(--mute);font-size:1.05rem;cursor:pointer;padding:2px 6px}
+/* iOS step card */
+#a2hs.a2-ios #a2-x{position:absolute;top:6px;right:8px}
+#a2hs .a2-row{display:flex;align-items:center;gap:11px}
+#a2hs .a2-steps{margin:11px 0 0;padding:0 0 0 1.15rem;list-style:decimal}
+#a2hs .a2-steps li{font-size:.82rem;color:var(--ink-soft);margin:0 0 4px;line-height:1.45}
+#a2hs .a2-steps li b{color:var(--gold)}
+#a2hs .a2-steps svg{vertical-align:-4px;margin:0 1px}
+#a2hs .a2-point{text-align:center;color:var(--gold);font-size:1.5rem;line-height:.7;margin-top:6px;animation:a2bob 1.1s ease-in-out infinite}
+@keyframes a2bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
 
 /* admin chip */
 .admin-chip{font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:#241400;background:var(--gold);
