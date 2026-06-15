@@ -121,7 +121,7 @@ function topbar(){
   return `<div class="topbar">
     <a class="brand" href="#/dashboard" style="text-decoration:none">
       <img src="img/xiaolin-logo.png" alt="Made in Xiaolin">
-      <div><div class="nm">Made in Xiaolin</div><div class="ac">High Council Academy</div></div>
+      <div><div class="nm">Made in Xiaolin</div><div class="ac">Xiaolin Temple</div></div>
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       ${isAdmin()?`<a href="#/admin" class="admin-chip">ADMIN</a>`:""}
