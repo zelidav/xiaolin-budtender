@@ -7,7 +7,13 @@
 <meta name="description" content="Budtender training for Made in Xiaolin — Colorado's only creative rolling studio. Learn the lineup, pass the quizzes, earn the merch. Rolled Proper.">
 <meta name="theme-color" content="#0a0807">
 <link rel="icon" href="img/xiaolin-logo.png">
-<link rel="apple-touch-icon" href="img/xiaolin-logo.png">
+<!-- Installable PWA → launches fullscreen (standalone) on mobile -->
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Xiaolin">
+<link rel="apple-touch-icon" href="img/icon-192.png">
 <!-- Open Graph for shareability -->
 <meta property="og:title" content="Made in Xiaolin · High Council Academy">
 <meta property="og:description" content="Train on the lineup, pass the quizzes, earn the merch. Rolled Proper.">
@@ -23,6 +29,7 @@
 <body>
 <div class="paper-noise"></div>
 <div class="wrap"><div id="app"></div></div>
+<script src="a2hs.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
