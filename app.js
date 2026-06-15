@@ -103,6 +103,8 @@ function render(){
   if (m) return viewQuiz(app, +m[1]);
   const t = h.match(/^#\/training\/(\d+)$/);
   if (t) return viewSection(app, +t[1]);
+  const c = h.match(/^#\/complete\/(\d+)$/);
+  if (c) return viewComplete(app, +c[1]);
   switch(h){
     case "#/dashboard": return viewDashboard(app);
     case "#/training": return viewTrainingHub(app);
@@ -110,6 +112,7 @@ function render(){
     case "#/sale": return viewSale(app);
     case "#/reward": return viewReward(app);
     case "#/exchange": return viewExchange(app);
+    case "#/welcome": return viewFinal(app);
     default: return S && S.joined ? viewDashboard(app) : viewCover(app);
   }
 }
@@ -120,8 +123,8 @@ function topbar(){
   const p = S ? S.points : 0;
   return `<div class="topbar">
     <a class="brand" href="#/dashboard" style="text-decoration:none">
-      <img src="img/xiaolin-logo.png" alt="Made in Xiaolin">
-      <div><div class="nm">Made in Xiaolin</div><div class="ac">Xiaolin Temple</div></div>
+      <img src="img/xiaolin-logo.png" alt="Xiaolin">
+      <div><div class="nm" style="letter-spacing:.22em;font-size:1.3rem">XIAOLIN</div></div>
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       ${isAdmin()?`<a href="#/admin" class="admin-chip">ADMIN</a>`:""}
@@ -216,21 +219,26 @@ function viewDashboard(app){
   const done = passedCount(), total = XIAOLIN.sections.length;
   const complete = allPassed();
   if (codeUnlocked() && !S.code){ S.code = makeCode(S.name, S.store); saveState(S); }
-  const codeBlock = codeUnlocked()
-    ? `<div class="codechip"><div class="l">Your High Council Code · ${XIAOLIN.rewards.discountPct}% Off</div><div class="c">${S.code}</div></div>`
-    : `<div class="codechip locked"><div class="l">50% Code — Locked</div><div class="c">Reach 100 pts (the modules get you there)</div></div>`;
   app.innerHTML = `${topbar()}
-  <div class="kicker">Welcome, ${esc(S.name.split(" ")[0])} · ${esc(S.store)}</div>
-  <h1 style="font-size:2.4rem">High Council</h1>
+  <div class="dash-head">
+    <div class="kicker">Welcome, Council Member</div>
+    <div class="member-name">${esc(S.name)}</div>
+    <h1 class="dash-title">The High Council</h1>
+  </div>
   ${pointsHero()}
   ${!complete?`<div class="card" style="margin-top:14px">
-    <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Training · 3 modules → High Council</h3>
+    <h3 style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)">Your Progress</h3>
     <div class="prog-outer" style="margin-top:8px"><div class="prog-inner" style="width:${Math.round(done/total*100)}%"></div></div>
-    <div class="prog-label">${done} of ${total} sections passed — 6 Chambers earn up to <b style="color:var(--gold)">1,000 pts</b></div>
+    <div class="prog-label">${done} of ${total} lessons passed — 6 Chambers earn up to <b style="color:var(--gold)">1,000 pts</b></div>
   </div>`:""}
-  ${codeBlock}
-  <a class="btn ${complete?'ghost':''}" href="#/training">${complete?'Enter the Training Chambers':'Enter the Training Chambers →'}</a>
-  <a class="btn ${complete?'gold':'ghost'}" href="#/sale">📷 Submit a Sale →</a>
+
+  <a class="gate-cta" href="#/training">
+    <span class="gc-k">${complete?'Revisit':'Begin'}</span>
+    <span class="gc-t">Enter the<br>Training Chambers</span>
+    <span class="gc-hint">${done}/${total} lessons · 6 Chambers</span>
+  </a>
+
+  <a class="btn gold" href="#/sale">📷 Submit Sales to Earn Commissary Points</a>
   <a class="btn ghost" href="#/lineup">The Lineup</a>
 
   ${councilEvents()}
@@ -284,10 +292,13 @@ function viewTrainingHub(app){
     const secs = moduleSecs(m.id);
     const mdone = moduleDone(m.id);
     const got = S.moduleBonus[m.id];
+    const intro = (m.intro && m.intro.length)
+      ? `<div class="chamber-intro">${m.intro.map(p=>`<p>${p}</p>`).join("")}</div>` : "";
     return `<div class="mod-head ${mdone?'done':''}">
       <div><span class="mod-lvl">${esc(m.level)}</span><span class="mod-ttl">${esc(m.title)}</span></div>
       <div class="mod-bonus">${got?'✓ +'+m.bonus:'+'+m.bonus+' pts'}</div>
     </div>
+    ${intro}
     <div class="sect-grid">${secs.map(card).join("")}</div>`;
   }).join("");
   const cap = XIAOLIN.sections.find(s=>s.capstone);   // optional
@@ -413,8 +424,10 @@ function gradeQuiz(n){
       : `You know all of Xiaolin. Reach <b>1,000 pts</b> (${(COUNCIL_PTS()-pts()).toLocaleString()} to go) and your High Council invitation unlocks.`;
     cta = `<a class="btn gold" href="#/reward">Open the Commissary →</a>`;
   } else if (moduleJustDone){
-    msg = `<b>${esc(moduleJustDone.level)} module complete</b> — “${esc(moduleJustDone.title)}.” <b>+${moduleJustDone.bonus} points!</b>`;
-    cta = `<a class="btn gold" href="#/training">Continue to the Next Module →</a>`;
+    msg = `<b>${esc(moduleJustDone.level)} complete</b> — “${esc(moduleJustDone.title)}.” <b>+${moduleJustDone.bonus} points!</b>`;
+    cta = moduleJustDone.complete
+      ? `<a class="btn gold" href="#/complete/${moduleJustDone.id}">Continue →</a>`
+      : `<a class="btn gold" href="#/welcome">See Your Results →</a>`;   // last Chamber → final screen
   } else {
     msg = "Section passed. Next section unlocked.";
     cta = `<a class="btn" href="#/training">Continue →</a>`;
@@ -430,6 +443,43 @@ function gradeQuiz(n){
   render._topbarRefresh && render._topbarRefresh();
   // refresh points in topbar
   const ptsEl = document.querySelector(".topbar .pts b"); if (ptsEl) ptsEl.textContent = S.points;
+}
+
+/* ---------- chamber complete + final screens ---------- */
+function viewComplete(app, id){
+  const m = XIAOLIN.modules.find(x=>x.id===id);
+  if (!m || !m.complete) return go("#/welcome");
+  const nextSecs = moduleSecs(id+1);
+  const next = XIAOLIN.modules.find(x=>x.id===id+1);
+  const body = m.complete.body.map(p=>`<p>${p}</p>`).join("");
+  app.innerHTML = `${topbar()}
+  <div class="complete-screen">
+    <img class="cs-seal" src="img/medallion.jpg" alt="">
+    <div class="kicker" style="text-align:center">${esc(m.level)} Complete</div>
+    <h1 class="dash-title">${esc(m.title)}</h1>
+    <div class="reader cs-body">${body}</div>
+    ${next && nextSecs.length
+      ? `<a class="btn gold" href="#/training/${nextSecs[0].n}">Enter ${esc(next.title)} →</a>`
+      : `<a class="btn gold" href="#/welcome">Continue →</a>`}
+    <a class="btn ghost" href="#/training">All Chambers</a>
+  </div>
+  ${foot()}`;
+  window.scrollTo(0,0);
+}
+function viewFinal(app){
+  const f = XIAOLIN.final || { title: "Welcome to the High Council", body: [] };
+  const body = f.body.map(p=>`<p>${p}</p>`).join("");
+  app.innerHTML = `${topbar()}
+  <div class="complete-screen final">
+    <img class="cs-seal big" src="img/medallion.jpg" alt="">
+    <div class="kicker" style="text-align:center;color:var(--gold)">You have completed the Chambers</div>
+    <h1 class="dash-title">${esc(f.title)}</h1>
+    <div class="reader cs-body">${body}</div>
+    <a class="btn gold" href="#/reward">Open the Commissary →</a>
+    <a class="btn ghost" href="#/dashboard">Dashboard</a>
+  </div>
+  ${foot()}`;
+  window.scrollTo(0,0);
 }
 
 /* ---------- lineup ---------- */
