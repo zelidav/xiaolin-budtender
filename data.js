@@ -89,7 +89,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 2, module: 1, key: "why-xiaolin", title: "Why Xiaolin", tag: "Welcome to the Family", hero: "img/chalice/c-hand.jpg",
+      n: 2, module: 1, key: "why-xiaolin", title: "Why Xiaolin", tag: "Welcome to the Family", hero: "img/lessons/why-xiaolin.jpg",
       body: [
         "Why Xiaolin?",
         "The name is pronounced exactly like Shaolin, but the spelling was intentionally changed.",
@@ -109,7 +109,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 3, module: 1, key: "the-pursuit-of-excellence", title: "The Pursuit of Excellence", tag: "Welcome to the Family", hero: "img/gen/event.jpg",
+      n: 3, module: 1, key: "the-pursuit-of-excellence", title: "The Pursuit of Excellence", tag: "Welcome to the Family", hero: "img/lessons/pursuit-of-excellence.jpg",
       body: [
         "At Xiaolin, our mission is:",
         "<strong>To achieve excellence in crafting cannabis lifestyle products and experiences with creativity and integrity.</strong>",
@@ -166,7 +166,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 5, module: 2, key: "the-godfather", title: "The Godfather", tag: "The Lineup", hero: "img/cannagars/godfather.png",
+      n: 5, module: 2, key: "the-godfather", title: "The Godfather", tag: "The Lineup", hero: "img/lessons/godfather.jpg",
       body: [
         "The Godfather is the largest and most iconic member of the Xiaolin family.",
         "Designed for weddings, milestone celebrations, and moments that deserve a centerpiece, The Godfather represents the highest expression of the Xiaolin cannagar experience. With 12 grams of material and a burn time that can exceed two hours, it was created for occasions where the experience itself becomes part of the event.",
@@ -190,7 +190,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 6, module: 2, key: "the-capo", title: "The Capo", tag: "The Lineup", hero: "img/cannagars/capo.png",
+      n: 6, module: 2, key: "the-capo", title: "The Capo", tag: "The Lineup", hero: "img/lessons/capo.jpg",
       body: [
         "The Capo is built for those moments that call for something premium without going all the way to a Godfather.",
         "Named after the caporegime of organized crime lore, The Capo represents leadership, confidence, and quiet authority. It delivers the full Xiaolin cannagar experience in a format that's easier to share, gift, and enjoy across a wider variety of occasions.",
@@ -215,7 +215,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 7, module: 2, key: "the-goomah", title: "The Goomah", tag: "The Lineup", hero: "img/cannagars/goomah.png",
+      n: 7, module: 2, key: "the-goomah", title: "The Goomah", tag: "The Lineup", hero: "img/lessons/goomah.jpg",
       body: [
         "The Goomah is the smallest member of the VSXL cannagar family, but don't mistake size for significance.",
         "Goomah is the Italian word for a godmother or a close friend. Depending on who you ask, especially in Italian-American circles, it can also refer to someone who may not always be spoken about openly, but is not easily forgotten. 😉 Designed for more personal moments, The Goomah delivers the full Xiaolin cannagar experience in a smaller, more approachable format. With premium flower, Live Concentrates (rosin or resin) infusion, and the same attention to craftsmanship found throughout the VSXL collection, it proves that memorable experiences don't always require the largest format.",
@@ -347,7 +347,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 12, module: 3, key: "rolled-proper", title: "Rolled Proper", tag: "Rolled Proper", hero: "img/chalice/c-hand.jpg",
+      n: 12, module: 3, key: "rolled-proper", title: "Rolled Proper", tag: "Rolled Proper", hero: "img/lessons/rolled-proper.jpg",
       body: [
         "The phrase \"<strong>Rolled Proper</strong>\" comes from a lyric by The Notorious B.I.G.:",
         "\"I only smoke blunts if they rolled proper.\"",
@@ -375,7 +375,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 13, module: 3, key: "flavor-before-fire", title: "Flavor Before Fire", tag: "Rolled Proper", hero: "img/chalice/c3.jpg",
+      n: 13, module: 3, key: "flavor-before-fire", title: "Flavor Before Fire", tag: "Rolled Proper", hero: "img/lessons/flavor-before-fire.jpg",
       body: [
         "At Xiaolin, we believe great cannabis starts with flavor. That's why one of our core philosophies is simple:",
         "<strong>Flavor Before Fire</strong>.",
@@ -457,7 +457,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 16, module: 4, key: "beyond-indica-sativa-and-hybrid", title: "Beyond Indica, Sativa, and Hybrid", tag: "The Experience", hero: "img/gen/event.jpg",
+      n: 16, module: 4, key: "beyond-indica-sativa-and-hybrid", title: "Beyond Indica, Sativa, and Hybrid", tag: "The Experience", hero: "img/lessons/beyond.jpg",
       body: [
         "Indica, Sativa, and Hybrid are among the most recognizable terms in cannabis. While these classifications remain widely used, they don't always provide a complete picture of the experience a product may deliver.",
         "Many factors contribute to the overall experience, including cannabinoid content, terpene profile, dosage, setting, and the individual consuming the product. Because of this, two products carrying the same classification can sometimes produce very different experiences.",
@@ -544,7 +544,7 @@ const XIAOLIN = {
       ],
     },
     {
-      n: 21, module: 6, key: "production-workshops", title: "Production Workshops", tag: "The Path Forward", hero: "img/gen/popup-dispensary.jpg",
+      n: 21, module: 6, key: "production-workshops", title: "Production Workshops", tag: "The Path Forward", hero: "img/lessons/production.jpg",
       body: [
         "Every Xiaolin product begins long before it reaches a shelf.",
         "Production Workshops provide members with a behind-the-scenes look at the craftsmanship, techniques, and processes that help bring products to life. Depending on the workshop, members may learn about sourcing, infusion, rolling techniques, quality control, packaging, and other aspects of production.",

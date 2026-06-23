@@ -238,7 +238,8 @@ function viewDashboard(app){
     <span class="gc-hint">${done}/${total} lessons · 6 Chambers</span>
   </a>
 
-  <a class="btn gold" href="#/sale">📷 Submit Sales to Earn Commissary Points</a>
+  <a class="sale-banner" href="#/sale" aria-label="Submit Sales and earn Commissary points">
+    <img src="img/submit-sales-banner.jpg" alt="Commissary Contributions — Submit Sales & Earn Points"></a>
   <a class="btn ghost" href="#/lineup">The Lineup</a>
 
   ${councilEvents()}
