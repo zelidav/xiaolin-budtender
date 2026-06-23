@@ -325,11 +325,21 @@ function viewTrainingHub(app){
   ${foot()}`;
 }
 
+/* ---------- lesson body rendering ----------
+ * Each body entry is its own block. Entries that already start with a block-level
+ * tag (h4 heading, ul/ol list, figure, blockquote, hr) are emitted as-is so we can
+ * render headings + bullet/spec lists; everything else is a paragraph. */
+function renderBody(arr){
+  return (arr||[]).map(p =>
+    /^\s*<(?:h[1-6]|ul|ol|li|div|figure|blockquote|hr|table)\b/i.test(p) ? p : `<p>${p}</p>`
+  ).join("");
+}
+
 /* ---------- section reading ---------- */
 function viewSection(app, n){
   const s = XIAOLIN.sections.find(x=>x.n===n);
   if (!s) return go("#/training");
-  const body = s.body.map(p=>`<p>${p}</p>`).join("");
+  const body = renderBody(s.body);
   const mod = XIAOLIN.modules.find(m=>m.id===s.module);
   const lvl = s.capstone ? "Capstone" : (mod ? mod.level + " · " + mod.title : "");
   app.innerHTML = `${topbar()}
@@ -451,7 +461,7 @@ function viewComplete(app, id){
   if (!m || !m.complete) return go("#/welcome");
   const nextSecs = moduleSecs(id+1);
   const next = XIAOLIN.modules.find(x=>x.id===id+1);
-  const body = m.complete.body.map(p=>`<p>${p}</p>`).join("");
+  const body = renderBody(m.complete.body);
   app.innerHTML = `${topbar()}
   <div class="complete-screen">
     <img class="cs-seal" src="img/medallion.jpg" alt="">
@@ -468,7 +478,7 @@ function viewComplete(app, id){
 }
 function viewFinal(app){
   const f = XIAOLIN.final || { title: "Welcome to the High Council", body: [] };
-  const body = f.body.map(p=>`<p>${p}</p>`).join("");
+  const body = renderBody(f.body);
   app.innerHTML = `${topbar()}
   <div class="complete-screen final">
     <img class="cs-seal big" src="img/medallion.jpg" alt="">

@@ -76,7 +76,7 @@
   window.XLGate = { play: play };
 
   // Main gate — once per browser session
-  function mainGate(){ play("XIAOLIN", "High Council Academy"); }  // every load (replays on refresh)
+  function mainGate(){ play("XIAOLIN", "Welcome to the High Council"); }  // every load (replays on refresh)
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mainGate);
   else mainGate();
 

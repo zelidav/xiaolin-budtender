@@ -95,7 +95,8 @@ input::placeholder{color:#6f6354}
 .prog-label{font-size:.72rem;color:var(--mute);font-weight:600;letter-spacing:.04em}
 
 /* training modules */
-.mod-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line-soft)}
+/* Chamber titles centered on the Modules page (level + title stacked & centered, bonus below) */
+.mod-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;margin:24px 0 10px;padding-bottom:9px;border-bottom:1px solid var(--line-soft)}
 .mod-head .mod-lvl{display:inline-block;font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;font-weight:800;
   color:#241400;background:var(--gold);padding:3px 8px;border-radius:100px;margin-right:9px;vertical-align:middle}
 .mod-head .mod-ttl{font-family:var(--serif);font-size:1.35rem;color:var(--ink);font-weight:600}
@@ -127,6 +128,19 @@ input::placeholder{color:#6f6354}
 .reader p:empty{margin-bottom:.5rem}
 .reader p:first-of-type{font-size:1.1rem;color:var(--ink)}
 .reader strong, .chamber-intro strong, .cs-body strong{color:var(--gold);font-weight:700}
+/* lesson sub-headings + lists (so specs / "When to recommend" read as sections, not run-ons) */
+.reader h4{font-family:var(--serif);font-size:1.18rem;color:var(--gold);font-weight:700;margin:1.25rem 0 .5rem;line-height:1.25}
+.reader h4:first-child{margin-top:.25rem}
+.reader ul{margin:.35rem 0 1rem;padding:0;list-style:none}
+.reader ul li{position:relative;padding-left:1.15rem;margin:.32rem 0;font-size:1.0rem;line-height:1.5}
+.reader ul li::before{content:"•";color:var(--gold);position:absolute;left:.1rem;top:-.02rem;font-weight:700}
+/* spec sheet: label left, value right, each on its own line */
+.reader ul.specs{margin:.4rem 0 1rem;border-top:1px solid var(--line-soft)}
+.reader ul.specs li{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:.46rem 0;margin:0;border-bottom:1px solid var(--line-soft)}
+.reader ul.specs li::before{content:none}
+.reader ul.specs li b{color:var(--ink-soft);font-weight:600}
+.reader ul.specs li span{color:var(--gold-deep);font-weight:700;text-align:right;white-space:nowrap}
 
 /* centered home header */
 .dash-head{text-align:center;margin:6px 0 4px}
