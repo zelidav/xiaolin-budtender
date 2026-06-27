@@ -424,7 +424,7 @@ const XIAOLIN = {
       ],
       quiz: [
         {"q": "According to the lesson, the most effective recommendations begin with:", "o": {"A": "Understanding the person, not the product", "B": "Recommending the most expensive option first", "C": "Quoting THC percentages from memory", "D": "Asking, \"How many of these are you buying today?\""}, "a": "A", "e": ""},
-        {"q": "What is the goal of asking questions like \"What brings you in today?\" or", "o": {"A": "To collect customer data for future marketing campaigns", "B": "To understand the customer's needs and desired experience", "C": "To see how long they'll talk before buying something", "D": "To determine whether they deserve a Godfather"}, "a": "B", "e": ""},
+        {"q": "What is the goal of asking questions like \"What brings you in today?\" or \"Are you celebrating anything?\"", "o": {"A": "To collect customer data for future marketing campaigns", "B": "To understand the customer's needs and desired experience", "C": "To see how long they'll talk before buying something", "D": "To determine whether they deserve a Godfather"}, "a": "B", "e": ""},
         {"q": "According to the lesson, customers often remember:", "o": {"A": "Every specification and terpene percentage", "B": "The exact SKU number of the product", "C": "How a recommendation made them feel", "D": "The employee who recited the most THC percentages"}, "a": "C", "e": ""},
       ],
     },

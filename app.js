@@ -52,8 +52,8 @@ function saveState(s){ if (s && s.id){ DB.users[s.id] = s; saveDB(); } }
 function setCurrent(uid){ CURRENT = uid; localStorage.setItem(CUR_KEY, uid); S = DB.users[uid] || null; }
 function isAdmin(){ return localStorage.getItem(ADMIN_KEY) === "1" || (S && S.role === "admin"); }
 function uid(name, store){ return (name+"-"+store).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") + "-" + (Object.keys(DB.users).length); }
-function freshState(name, store){
-  return { id: uid(name,store), name, store, role:"budtender", joined: true, passed: {}, points: 0, code: null, sales: [], moduleBonus: {}, scores: {}, created: "2026-06-09" };
+function freshState(name, store, email){
+  return { id: uid(name,store), name, store, email: email||"", role:"budtender", joined: true, passed: {}, points: 0, code: null, sales: [], moduleBonus: {}, scores: {}, created: "2026-06-09" };
 }
 
 // Deterministic per-roller code (no Date/random needed for MVP).
@@ -112,7 +112,7 @@ function render(){
     case "#/sale": return viewSale(app);
     case "#/reward": return viewReward(app);
     case "#/exchange": return viewExchange(app);
-    case "#/leaderboard": return viewLeaderboard(app);
+    case "#/leaderboard": return isAdmin() ? viewLeaderboard(app) : go("#/dashboard");
     case "#/welcome": return viewFinal(app);
     default: return S && S.joined ? viewDashboard(app) : viewCover(app);
   }
@@ -140,11 +140,14 @@ function viewCover(app){
   app.innerHTML = `
   <div class="cover">
     <img class="seal" src="img/xiaolin-logo.png" alt="Made in Xiaolin">
-    <div class="kicker">Budtender Program</div>
-    <h1>The High Council<br>Academy</h1>
-    <div class="promise">Learn the craft. Earn the merch.</div>
-    <div class="marque"><span>High Times</span><span class="x">×</span><span>Playboy</span><span class="x">×</span><span>Forbes</span></div>
-    <p class="sub">The original creative rolling studio — now <strong>Made in New York</strong>. Get certified, sell, and rack up points to earn real <strong>Xiaolin × your shop</strong> gear and a seat on the <strong>High Council</strong>.</p>
+    <h1>The High Council</h1>
+    <div class="promise">Join the Family. Learn the Craft. Carry the Culture.</div>
+    <div class="cover-desc">
+      <p>The High Council is more than a training program. It is a community built around craft, culture, and shared growth.</p>
+      <p>Members gain access to immersive Training Chambers, hands on workshops, exclusive merchandise, and a Commissary rewards system that rewards both learning and contribution.</p>
+      <p>Earn points through training, sales submissions, and participation to unlock Xiaolin gear, limited rewards, and future experiences. Whether you're new to the brand or a longtime supporter, the High Council was created for those who want to deepen their knowledge, elevate their craft, and represent something bigger than themselves.</p>
+      <p>Every lesson completed, every workshop attended, and every contribution made moves you further along the path.</p>
+    </div>
 
     <div class="earn-strip">
       <div class="es-head">What you're playing for</div>
@@ -158,26 +161,34 @@ function viewCover(app){
     </div>
   </div>
   <div class="card">
-    <h2>Get Rolling</h2>
+    <h2>Join the High Council</h2>
     <p class="sub" style="margin-bottom:6px">Two minutes. No corporate hoops.</p>
-    <div class="field"><label>Your Name</label><input id="f_name" placeholder="First & last" autocomplete="name"></div>
-    <div class="field"><label>Your Shop</label><input id="f_store" placeholder="Dispensary name" autocomplete="organization"></div>
-    <div class="err" id="joinErr">Add your name and your shop to start.</div>
-    <button class="btn" onclick="doJoin()">Enter the Studio →</button>
+    <div class="two-col">
+      <div class="field"><label>First Name</label><input id="f_first" placeholder="First" autocomplete="given-name"></div>
+      <div class="field"><label>Last Name</label><input id="f_last" placeholder="Last" autocomplete="family-name"></div>
+    </div>
+    <div class="field"><label>Email Address</label><input id="f_email" type="email" inputmode="email" placeholder="you@email.com" autocomplete="email"></div>
+    <div class="field"><label>Dispensary Name</label><input id="f_store" placeholder="Your dispensary" autocomplete="organization"></div>
+    <div class="err" id="joinErr">Please fill in your name, email, and dispensary to start.</div>
+    <button class="btn" onclick="doJoin()">Enter the High Council →</button>
     <p class="demo-hint" onclick="fillDemo()">Demo? Tap to use <strong>Dave Z · Dave's Dispensary</strong></p>
     <p class="sub" style="text-align:center;margin-top:10px">Already started? Your progress is saved on this device.</p>
   </div>
   ${foot()}`;
 }
 function doJoin(){
-  const name = document.getElementById("f_name").value.trim();
+  const first = document.getElementById("f_first").value.trim();
+  const last = document.getElementById("f_last").value.trim();
+  const email = document.getElementById("f_email").value.trim();
   const store = document.getElementById("f_store").value.trim();
-  if (!name || !store){ document.getElementById("joinErr").classList.add("show"); return; }
-  const nu = freshState(name, store); DB.users[nu.id] = nu; setCurrent(nu.id); saveState(nu);
+  if (!first || !last || !email || !store){ document.getElementById("joinErr").classList.add("show"); return; }
+  const nu = freshState(first + " " + last, store, email); DB.users[nu.id] = nu; setCurrent(nu.id); saveState(nu);
   go("#/dashboard");
 }
 function fillDemo(){
-  document.getElementById("f_name").value = "Dave Z";
+  document.getElementById("f_first").value = "Dave";
+  document.getElementById("f_last").value = "Z";
+  document.getElementById("f_email").value = "dave@davesdispensary.com";
   document.getElementById("f_store").value = "Dave's Dispensary";
 }
 
@@ -233,10 +244,9 @@ function viewDashboard(app){
     <div class="prog-label">${done} of ${total} lessons passed — 6 Chambers earn up to <b style="color:var(--gold)">1,000 pts</b></div>
   </div>`:""}
 
-  <a class="gate-cta" href="#/training">
-    <span class="gc-k">${complete?'Revisit':'Begin'}</span>
-    <span class="gc-t">Enter the<br>Training Chambers</span>
-    <span class="gc-hint">${done}/${total} lessons · 6 Chambers</span>
+  <a class="chambers-cta" href="#/training">
+    <img src="img/enter-chambers.jpg" alt="Enter the Training Chambers">
+    <span class="cc-hint">${complete?'Revisit':'Begin'} · ${done}/${total} lessons · 6 Chambers</span>
   </a>
 
   <a class="sale-banner" href="#/sale" aria-label="Submit Sales and earn Commissary points">
@@ -247,7 +257,6 @@ function viewDashboard(app){
     <span class="sc-t"><b>Shop the Xiaolin Store</b><small>Chalice, Dragon Tips, merch &amp; more</small></span>
     <span class="sc-go">Open →</span>
   </a>
-  <a class="btn" href="#/leaderboard">🏆 National Leaderboard</a>
   <a class="btn ghost" href="#/lineup">The Lineup</a>
 
   ${councilEvents()}
@@ -326,8 +335,8 @@ function viewLeaderboard(app){
     </div>`;
   }).join("");
   app.innerHTML = `${topbar()}
-  <a class="backlink" href="#/dashboard">← Dashboard</a>
-  <div class="kicker">High Council</div>
+  <a class="backlink" href="#/admin">← Admin</a>
+  <div class="kicker">Admin · for contests &amp; challenges</div>
   <h1>National Leaderboard</h1>
   <div class="lb-hero">
     <div class="lb-rank-big">#${myRank||"—"}</div>
@@ -755,6 +764,13 @@ function viewAdmin(app){
     <div class="ex-d">An expert AI for this app — troubleshoot issues, or add &amp; update lessons, quizzes, products, events &amp; prices. It writes the exact code to paste.</div></div>
     <div class="ex-go">Ask →</div>
   </div>
+
+  <a class="expert-card" href="#/leaderboard" style="text-decoration:none;color:inherit">
+    <div class="ex-ico">🏆</div>
+    <div><div class="ex-h">National Leaderboard</div>
+    <div class="ex-d">Members ranked by points across all stores — admin-only, for running contests &amp; challenges.</div></div>
+    <div class="ex-go">View →</div>
+  </a>
 
   <div class="card">
     <h3 style="font-family:var(--serif);font-size:1.3rem;color:var(--gold);font-weight:600;margin-bottom:4px">Quick-create a budtender</h3>

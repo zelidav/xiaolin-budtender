@@ -43,6 +43,9 @@
 #xl-gate .xl-crest .xl-word{font-family:Georgia,'Times New Roman',serif;font-size:clamp(32px,8vw,76px);letter-spacing:.14em;font-weight:700;line-height:1.02;
   background:linear-gradient(180deg,#fbe899,#e8b13c 65%,#caa12f);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 2px 44px rgba(245,206,80,.5)}
 #xl-gate .xl-crest .xl-sub{margin-top:10px;font-family:Georgia,serif;font-size:clamp(11px,2.4vw,15px);letter-spacing:.42em;color:#d8222f;text-transform:uppercase}
+/* full artwork panel revealed by the sign gate (Enter the Training Chambers) */
+#xl-gate .xl-crest .xl-sign{display:block;width:auto;height:auto;max-width:92vw;max-height:76vh;border-radius:16px;
+  box-shadow:0 0 70px rgba(245,206,80,.5);filter:drop-shadow(0 14px 46px rgba(0,0,0,.65))}
 
 #xl-gate .xl-snd{position:absolute;z-index:6;top:calc(14px + env(safe-area-inset-top));right:14px;width:42px;height:42px;border-radius:50%;
   background:rgba(0,0,0,.55);border:1px solid rgba(245,206,80,.5);color:#f5ce50;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center}

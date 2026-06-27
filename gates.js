@@ -73,12 +73,39 @@
     g.addEventListener("click", close);
     setTimeout(close, quick ? 3900 : 5500);
   }
-  window.XLGate = { play: play };
+  // Sign gate — doors swing open to reveal a full artwork panel, then fade to the
+  // screen beneath. Used for "Enter the Training Chambers."
+  function playSign(img){
+    var ex = document.getElementById("xl-gate"); if (ex && ex.parentNode) ex.parentNode.removeChild(ex);
+    var g = document.createElement("div");
+    g.id = "xl-gate"; g.className = "xl-quick xl-signgate";
+    g.innerHTML =
+      "<div class='xl-burst'></div><div class='xl-rays'></div>" +
+      "<div class='xl-smoke'><span></span><span></span><span></span><span></span><span></span></div>" +
+      "<div class='xl-door l'></div><div class='xl-door r'></div><div class='xl-seam'></div>" +
+      "<div class='xl-crest'><img class='xl-sign' src='" + img + "' alt='Enter the Training Chambers'></div>" +
+      "<div class='xl-tap'>tap to enter · </div>";
+    document.body.appendChild(g);
+    gong();
+    var done = false;
+    function close(){ if (done) return; done = true; g.classList.add("xl-skip");
+      setTimeout(function(){ if (g.parentNode) g.parentNode.removeChild(g); }, 600); }
+    g.addEventListener("click", close);
+    setTimeout(close, 3600);
+  }
+  window.XLGate = { play: play, sign: playSign };
 
   // Main gate — once per browser session
   function mainGate(){ play("XIAOLIN", "Welcome to the High Council"); }  // every load (replays on refresh)
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mainGate);
   else mainGate();
+
+  // Training Chambers sign gate — when ENTERING the training hub from elsewhere.
+  var prevHash = location.hash;
+  window.addEventListener("hashchange", function(){
+    var h = location.hash, was = prevHash; prevHash = h;
+    if (h === "#/training" && was.indexOf("#/training") !== 0) playSign("img/enter-chambers.jpg");
+  });
 
   // Chamber gates — when entering a new Chamber (once per Chamber per session)
   var lastChamber = null;
