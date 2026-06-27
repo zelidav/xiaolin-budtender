@@ -390,6 +390,12 @@ input::placeholder{color:#6f6354}
 .ev-date .ev-day{display:block;font-family:var(--serif);font-size:1.5rem;color:var(--ink);font-weight:600;line-height:1}
 .ev-date.tbd{display:flex;align-items:center;justify-content:center;min-height:46px}
 .ev-date.tbd .ev-mo{font-size:.92rem;letter-spacing:.1em;color:var(--gold)}
+.ev-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ev-act{font-size:.72rem;font-weight:700;text-decoration:none;padding:6px 12px;border-radius:100px;
+  border:1px solid var(--card-line);color:var(--ink-soft);background:var(--card);transition:border-color .15s,color .15s}
+.ev-act:hover{border-color:var(--gold);color:var(--gold-deep)}
+.ev-act.reg{background:var(--red);color:#fff;border-color:var(--red)}
+.ev-act.reg:hover{background:var(--red-deep);color:#fff;border-color:var(--red-deep)}
 .ev-type{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:800}
 .ev-t{font-family:var(--serif);font-size:1.15rem;color:var(--ink);font-weight:600;line-height:1.1;margin-top:2px}
 .ev-note{font-size:.78rem;color:var(--mute);line-height:1.4;margin-top:3px}

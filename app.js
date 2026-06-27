@@ -261,6 +261,25 @@ function viewDashboard(app){
 }
 
 /* ---------- High Council events ---------- */
+// Google Calendar "template" link — prefilled event; if no concrete start the
+// user just picks the date (works for TBD events). Optional e.start/e.end (ISO).
+function gcalLink(e){
+  const p = new URLSearchParams();
+  p.set("action","TEMPLATE");
+  p.set("text","Made in Xiaolin — " + (e.title||"High Council Event"));
+  if (e.note) p.set("details", e.note);
+  if (e.where) p.set("location", e.where);
+  if (e.start){
+    const fmt = s => s.replace(/[-:]/g,"").replace(/\.\d+/,"");
+    p.set("dates", fmt(e.start) + "/" + fmt(e.end||e.start));
+  }
+  return "https://calendar.google.com/calendar/render?" + p.toString();
+}
+function rsvpLink(e){
+  if (e.reg) return e.reg;
+  return "mailto:sales@madeinxiaolin.com?subject=" + encodeURIComponent("RSVP: " + (e.title||"High Council Event")) +
+    "&body=" + encodeURIComponent("I'd like to RSVP for " + (e.title||"the event") + ".\n\nName:\nStore:\n");
+}
 function councilEvents(){
   const evs = (XIAOLIN.events||[]);
   if (!evs.length) return "";
@@ -274,6 +293,10 @@ function councilEvents(){
         <div class="ev-t">${esc(e.title)}</div>
         <div class="ev-note">${esc(e.note)}</div>
         <div class="ev-where">📍 ${esc(e.where)}</div>
+        <div class="ev-actions">
+          <a class="ev-act" href="${gcalLink(e)}" target="_blank" rel="noopener">📅 Add to calendar</a>
+          <a class="ev-act reg" href="${rsvpLink(e)}">✓ RSVP</a>
+        </div>
       </div>
     </div>`;
   }).join("");
