@@ -257,9 +257,10 @@ function councilEvents(){
   const evs = (XIAOLIN.events||[]);
   if (!evs.length) return "";
   const rows = evs.map(e=>{
-    const [mo,day] = e.date.split(" ");
+    const parts = (e.date||"").split(" ");
+    const mo = parts[0] || "TBD", day = parts[1] || "";
     return `<div class="ev-row">
-      <div class="ev-date"><span class="ev-mo">${esc(mo)}</span><span class="ev-day">${esc(day)}</span></div>
+      <div class="ev-date${day?'':' tbd'}"><span class="ev-mo">${esc(mo)}</span>${day?`<span class="ev-day">${esc(day)}</span>`:""}</div>
       <div class="ev-b">
         <div class="ev-type">${esc(e.type)}${e.pts?` · +${e.pts} pts`:""}</div>
         <div class="ev-t">${esc(e.title)}</div>

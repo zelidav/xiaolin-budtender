@@ -1,7 +1,13 @@
 /* Made in Xiaolin — service worker.
  * Required for the app to be installable (Add to Home Screen) and to launch
- * fullscreen/standalone. Caches the shell so it opens offline too. */
-var CACHE = "xiaolin-v1";
+ * fullscreen/standalone. Caches the shell so it opens offline too.
+ *
+ * IMPORTANT: app code/content (app.js, data.js, styles.css, gates.js) is served
+ * NETWORK-FIRST so content updates always reach users immediately. The cache is
+ * only an offline fallback. (A previous cache-first version pinned stale files in
+ * users' browsers, so deploys appeared not to "carry over".) Bump CACHE to purge
+ * old caches on activate. */
+var CACHE = "xiaolin-v3";
 var CORE = [
   "./", "index.html", "app.js", "data.js", "styles.css",
   "gates.css", "gates.js", "a2hs.js", "manifest.json",
@@ -25,23 +31,32 @@ self.addEventListener("activate", function(e){
   );
 });
 
-// Network-first for navigations (always get latest HTML), cache-first for assets.
+// Network-first for navigations AND same-origin app files (always latest when
+// online; fall back to cache offline). Cache-first only for cross-origin assets
+// (fonts, CDN images) which don't change.
 self.addEventListener("fetch", function(e){
   var req = e.request;
   if (req.method !== "GET") return;
-  if (req.mode === "navigate"){
+  var sameOrigin = new URL(req.url).origin === self.location.origin;
+
+  if (req.mode === "navigate" || sameOrigin){
     e.respondWith(
       fetch(req).then(function(res){
-        var copy = res.clone(); caches.open(CACHE).then(function(c){ c.put(req, copy); });
+        if (res && res.status === 200 && res.type === "basic"){
+          var copy = res.clone(); caches.open(CACHE).then(function(c){ c.put(req, copy); });
+        }
         return res;
-      }).catch(function(){ return caches.match(req).then(function(m){ return m || caches.match("index.html"); }); })
+      }).catch(function(){
+        return caches.match(req).then(function(m){ return m || caches.match("index.html"); });
+      })
     );
     return;
   }
+
   e.respondWith(
     caches.match(req).then(function(m){
       return m || fetch(req).then(function(res){
-        if (res && res.status === 200 && res.type === "basic"){
+        if (res && res.status === 200){
           var copy = res.clone(); caches.open(CACHE).then(function(c){ c.put(req, copy); });
         }
         return res;

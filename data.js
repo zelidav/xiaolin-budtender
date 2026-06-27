@@ -597,15 +597,15 @@ const XIAOLIN = {
 
   // Upcoming High Council experiences — workshops, trainings, flavor reviews, etc.
   events: [
-    { date: "Jun 18", type: "Flavor Review",  title: "Flavor Review Workshop", where: "Warwick, NY",
+    { date: "TBD", type: "Flavor Review",  title: "Flavor Review Workshop", where: "Warwick, NY",
       note: "Blind-taste the next NY drop and help pick what makes the cut.", pts: 25 },
-    { date: "Jun 25", type: "Experience",     title: "High Council Experience (Live)", where: "NYC",
+    { date: "TBD", type: "Experience",     title: "High Council Experience (Live)", where: "NYC",
       note: "The full immersive course with Christopher Louie — smoke, eat, connect.", pts: 50 },
-    { date: "Jul 09", type: "Production",      title: "Production Workshop", where: "Warwick, NY",
+    { date: "TBD", type: "Production",      title: "Production Workshop", where: "Warwick, NY",
       note: "Roll alongside a Canna-Torcedor and learn the craft hands-on.", pts: 50 },
-    { date: "Jul 16", type: "Customer Engage", title: "Customer Engagement Lab", where: "Virtual",
+    { date: "TBD", type: "Customer Engage", title: "Customer Engagement Workshop", where: "Virtual",
       note: "Live sales-floor role play — read the room, close like a boss.", pts: 25 },
-    { date: "Jul 24", type: "Connect",         title: "High Council Connect", where: "Astoria, NY",
+    { date: "TBD", type: "Connect",         title: "High Council Connect", where: "Astoria, NY",
       note: "Quick intro session + meet other Council members across stores.", pts: 25 },
   ],
 };
