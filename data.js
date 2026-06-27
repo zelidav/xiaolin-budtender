@@ -608,6 +608,27 @@ const XIAOLIN = {
     { date: "TBD", type: "Connect",         title: "High Council Connect", where: "Astoria, NY",
       note: "Quick intro session + meet other Council members across stores.", pts: 25 },
   ],
+
+  // National leaderboard roster — Council members across the country. The signed-in
+  // budtender is ranked against this field by points (merged with on-device users).
+  nationalBoard: [
+    { name: "Tony Marino",       store: "Terp Bros · Astoria",   pts: 4180 },
+    { name: "Gia Russo",         store: "ConBud · LES",          pts: 3720 },
+    { name: "Marcus Webb",       store: "Alto Canna · NYC",      pts: 3290 },
+    { name: "Nina Castellano",   store: "Lenox Hill Cannabis",   pts: 2960 },
+    { name: "Deshawn Price",     store: "Gotham Buds · Harlem",  pts: 2645 },
+    { name: "Lucia Romano",      store: "Terp Bros · Astoria",   pts: 2330 },
+    { name: "Priya Anand",       store: "Cloud Nine · Queens",   pts: 2015 },
+    { name: "Vince Lombardo",    store: "Alto Canna · NYC",      pts: 1840 },
+    { name: "Aaliyah Brooks",    store: "Empire Greens · Bklyn", pts: 1610 },
+    { name: "Sofia Greco",       store: "ConBud · LES",          pts: 1395 },
+    { name: "Diego Morales",     store: "Gotham Buds · Harlem",  pts: 1180 },
+    { name: "Hannah Kim",        store: "Cloud Nine · Queens",   pts: 985 },
+    { name: "Tommy Russo",       store: "Lenox Hill Cannabis",   pts: 740 },
+    { name: "Jasmine Carter",    store: "Empire Greens · Bklyn", pts: 560 },
+    { name: "Leo Bianchi",       store: "Terp Bros · Astoria",   pts: 420 },
+    { name: "Mia Tran",          store: "Cloud Nine · Queens",   pts: 295 },
+  ],
 };
 
 if (typeof module !== "undefined") module.exports = XIAOLIN;

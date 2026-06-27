@@ -112,6 +112,7 @@ function render(){
     case "#/sale": return viewSale(app);
     case "#/reward": return viewReward(app);
     case "#/exchange": return viewExchange(app);
+    case "#/leaderboard": return viewLeaderboard(app);
     case "#/welcome": return viewFinal(app);
     default: return S && S.joined ? viewDashboard(app) : viewCover(app);
   }
@@ -240,6 +241,13 @@ function viewDashboard(app){
 
   <a class="sale-banner" href="#/sale" aria-label="Submit Sales and earn Commissary points">
     <img src="img/submit-sales-banner.jpg" alt="Commissary Contributions — Submit Sales & Earn Points"></a>
+
+  <a class="store-cta" href="https://xiaolin.cannacrypted.com/store" target="_blank" rel="noopener">
+    <span class="sc-ico">🛍️</span>
+    <span class="sc-t"><b>Shop the Xiaolin Store</b><small>Chalice, Dragon Tips, merch &amp; more</small></span>
+    <span class="sc-go">Open →</span>
+  </a>
+  <a class="btn" href="#/leaderboard">🏆 National Leaderboard</a>
   <a class="btn ghost" href="#/lineup">The Lineup</a>
 
   ${councilEvents()}
@@ -272,6 +280,42 @@ function councilEvents(){
   return `<div class="vault-head"><h3>High Council Events</h3><span class="vault-link">RSVP at workshops</span></div>
   <p class="sub" style="margin:-4px 0 10px">Upcoming workshops, trainings, flavor reviews &amp; experiences — attend to earn Commissary points.</p>
   <div class="ev-list">${rows}</div>`;
+}
+
+/* ---------- national leaderboard ---------- */
+function viewLeaderboard(app){
+  // Rank on-device users against the national roster (data.js), by points.
+  const local = Object.values(DB.users).filter(u=>u && u.joined)
+    .map(u=>({ name:u.name, store:u.store, pts:u.points||0, me: !!(S && u.id===S.id) }));
+  const seen = new Set(local.map(u=>(u.name||"").toLowerCase()));
+  const nat = (XIAOLIN.nationalBoard||[]).filter(e=>!seen.has((e.name||"").toLowerCase()))
+    .map(e=>({ name:e.name, store:e.store, pts:e.pts||0, me:false }));
+  const all = local.concat(nat).sort((a,b)=> (b.pts-a.pts) || a.name.localeCompare(b.name));
+  const myRank = all.findIndex(u=>u.me) + 1;
+  const medal = r => r===1?"🥇":r===2?"🥈":r===3?"🥉":"#"+r;
+  const rows = all.map((u,i)=>{
+    const r=i+1;
+    return `<div class="lb-row${u.me?' me':''}${r<=3?' top':''}">
+      <div class="lb-rank">${medal(r)}</div>
+      <div class="lb-who"><div class="lb-n">${esc(u.name)}${u.me?' <span class="lb-you">YOU</span>':''}</div>
+        <div class="lb-s">${esc(u.store||'')}</div></div>
+      <div class="lb-pts">${u.pts.toLocaleString()}<span>pts</span></div>
+    </div>`;
+  }).join("");
+  app.innerHTML = `${topbar()}
+  <a class="backlink" href="#/dashboard">← Dashboard</a>
+  <div class="kicker">High Council</div>
+  <h1>National Leaderboard</h1>
+  <div class="lb-hero">
+    <div class="lb-rank-big">#${myRank||"—"}</div>
+    <div class="lb-rank-sub">You're <b>#${myRank}</b> of ${all.length} Council members nationwide<br>
+      <b style="color:var(--gold)">${pts().toLocaleString()}</b> points</div>
+  </div>
+  <div class="lb-list">${rows}</div>
+  <a class="btn gold" href="#/sale" style="margin-top:16px">📷 Submit a Sale to Climb →</a>
+  <a class="btn ghost" href="#/training">Earn points in the Chambers</a>
+  ${foot()}`;
+  window.scrollTo(0,0);
 }
 
 /* ---------- training hub ---------- */
