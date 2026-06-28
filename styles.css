@@ -135,7 +135,7 @@ input::placeholder{color:#6f6354}
 .reader p:first-of-type{font-size:1.1rem;color:var(--ink)}
 .reader strong, .chamber-intro strong, .cs-body strong{color:var(--gold);font-weight:700}
 /* lesson sub-headings + lists (so specs / "When to recommend" read as sections, not run-ons) */
-.reader h4{font-family:var(--serif);font-size:1.18rem;color:var(--gold);font-weight:700;margin:1.25rem 0 .5rem;line-height:1.25}
+.reader h4{font-family:var(--serif);font-size:1.18rem;color:var(--gold);font-weight:700;margin:1.25rem 0 .5rem;line-height:1.25;text-align:center}
 .reader h4:first-child{margin-top:.25rem}
 .reader ul{margin:.35rem 0 1rem;padding:0;list-style:none}
 .reader ul li{position:relative;padding-left:1.15rem;margin:.32rem 0;font-size:1.0rem;line-height:1.5}
